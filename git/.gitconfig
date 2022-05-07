@@ -1,0 +1,51 @@
+[core]
+  repositoryformatversion = 0
+  filemode = true
+  bare = false
+  pager = diff-so-fancy | less --tabs=4 -RFX
+  logallrefupdates = true
+  editor = code --wait
+[init]
+	defaultBranch = main
+[user]
+  name = Loick Le Digabel
+  email = loick.ledigabel@gmail.com
+[rerere]
+        enabled = true
+[alias]
+  wh = !git ls-files | grep -i
+  st = status
+  co = checkout
+  cp = cherry-pick
+  root = checkout master
+  ba = branch -v -a
+  pushf = push --force-with-lease
+  del = branch -D
+  blog = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)%Creset' --abbrev-commit
+  slog = log --pretty=oneline --abbrev-commit
+  nlog = log --name-status
+  dlog = log -p
+  ru = remote update
+  ci = commit -va
+  fix = commit --amend
+  br = branch -v
+  rw = reset --hard
+  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+  squash = !git rebase -i `$(git merge-base origin/master HEAD)`
+  stats = !git diff origin/master..`$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)` --shortstat
+  rb = !git fetch -p && git rebase origin/master
+  rbc = !git rebase --continue
+  rbs = !git rebase --skip
+  rba = !git rebase --abort
+  lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit
+[color]
+  ui = auto
+[merge]
+  summary = true
+[push]
+  default = current
+[diff-so-fancy]
+	markEmptyLines = false
+[commit]
+	template = ~/.config/git/.git-commit.tpl
+	gpgSign = true
