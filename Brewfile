@@ -20,7 +20,7 @@ brew "zoxide"
 
 cask "google-chrome"
 cask "signal"
-cask "transmission"
+cask "transmission-cli"
 cask "spectacle"
 cask "vlc"
 cask "font-fira-code-nerd-font"

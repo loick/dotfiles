@@ -28,7 +28,7 @@ if ! [ -x "$(command -v brew)" ]; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 fi
 
-brew bundle install --file "$(pwd)/other/Brewfile" --no-lock
+brew bundle install --file "$(pwd)/Brewfile" --no-lock
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Applications
