@@ -11,7 +11,7 @@
   name = Loick Le Digabel
   email = loick.ledigabel@gmail.com
 [rerere]
-        enabled = true
+  enabled = true
 [alias]
   wh = !git ls-files | grep -i
   st = status
@@ -38,6 +38,8 @@
   rbs = !git rebase --skip
   rba = !git rebase --abort
   lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit
+	logs = log --show-signature
+	cis = commit -S
 [color]
   ui = auto
 [merge]
