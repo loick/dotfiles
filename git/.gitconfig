@@ -50,4 +50,4 @@
 	markEmptyLines = false
 [commit]
 	template = ~/.config/git/.git-commit.tpl
-	gpgSign = true
+	gpgSign = false
