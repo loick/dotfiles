@@ -2,7 +2,7 @@
   repositoryformatversion = 0
   filemode = true
   bare = false
-  pager = diff-so-fancy | less --tabs=4 -RFX
+  pager = diff-so-fancy | less --tabs=4 -RFX --mouse
   logallrefupdates = true
   editor = code --wait
 [init]
