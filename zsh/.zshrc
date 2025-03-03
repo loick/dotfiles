@@ -112,4 +112,13 @@ if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
 fi
 
 export VOLTA_HOME="$HOME/.volta"
+export VOLTA_FEATURE_PNPM=1
 export PATH="$VOLTA_HOME/bin:$PATH"
+
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+
+function cursor {
+  open -a "/Applications/Cursor.app" "$@"
+}

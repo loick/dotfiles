@@ -4,7 +4,7 @@
   bare = false
   pager = diff-so-fancy | less --tabs=4 -RFX --mouse
   logallrefupdates = true
-  editor = code --wait
+	editor = cursor --wait
 [init]
 	defaultBranch = main
 [user]
@@ -17,7 +17,7 @@
   st = status
   co = checkout
   cp = cherry-pick
-  root = checkout master
+  root = checkout main
   ba = branch -v -a
   pushf = push --force-with-lease
   del = branch -D
@@ -31,8 +31,8 @@
   br = branch -v
   rw = reset --hard
   hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
-  squash = !git rebase -i `$(git merge-base origin/master HEAD)`
-  stats = !git diff origin/master..`$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)` --shortstat
+  squash = !git rebase -i `$(git merge-base origin/main HEAD)`
+  stats = !git diff origin/main..`$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)` --shortstat
   rb = !git fetch -p && git rebase origin/master
   rbc = !git rebase --continue
   rbs = !git rebase --skip
