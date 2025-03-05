@@ -9,7 +9,7 @@ fi
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH=${HOME}/.oh-my-zsh
+export ZSH=/Users/$(whoami)/.oh-my-zsh
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -106,7 +106,9 @@ source $ZSH/oh-my-zsh.sh
 # See https://github.com/ajeetdsouza/zoxide
 eval "$(zoxide init zsh)"
 
+# Brew
 export PATH="/opt/homebrew/bin:$PATH"
+export PATH=/usr/local/bin:$PATH
 
 export VOLTA_HOME="$HOME/.volta"
 export VOLTA_FEATURE_PNPM=1
@@ -115,8 +117,6 @@ export PATH="$VOLTA_HOME/bin:$PATH"
 export ANDROID_HOME=$HOME/Library/Android/sdk
 export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/platform-tools
-
-export PATH=/usr/local/bin:$PATH
 
 
 function cursor {
