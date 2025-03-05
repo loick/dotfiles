@@ -106,10 +106,7 @@ source $ZSH/oh-my-zsh.sh
 # See https://github.com/ajeetdsouza/zoxide
 eval "$(zoxide init zsh)"
 
-if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
-  export PATH=/opt/homebrew/opt/ruby/bin:$PATH
-  export PATH=`gem environment gemdir`/bin:$PATH
-fi
+export PATH="/opt/homebrew/bin:$PATH"
 
 export VOLTA_HOME="$HOME/.volta"
 export VOLTA_FEATURE_PNPM=1

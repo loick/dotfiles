@@ -25,7 +25,7 @@ ln -Fs "$(pwd)/git/.git-commit.tpl" ~/.config/git/.git-commit.tpl
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 if ! [ -x "$(command -v brew)" ]; then
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
 brew bundle install --file "$(pwd)/Brewfile" --no-lock
