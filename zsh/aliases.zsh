@@ -14,7 +14,6 @@ alias la="ls -la"
 alias cat="bat"
 alias y="yarn"
 alias grep="rg"
-alias cd="z"
 alias p="pnpm"
 
 # Graphite
