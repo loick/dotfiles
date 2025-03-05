@@ -31,7 +31,7 @@ if ! [ -x "$(command -v brew)" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-brew bundle install --file "$(pwd)/Brewfile" --no-lock
+brew bundle install --file "$(pwd)/Brewfile"
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Applications
