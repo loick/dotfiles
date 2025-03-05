@@ -26,6 +26,9 @@ ln -Fs "$(pwd)/git/.git-commit.tpl" ~/.config/git/.git-commit.tpl
 
 if ! [ -x "$(command -v brew)" ]; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  echo >> $(pwd)/.zprofile
+  echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $(pwd)/.zprofile
+  eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
 brew bundle install --file "$(pwd)/Brewfile" --no-lock
