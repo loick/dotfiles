@@ -13,6 +13,7 @@ brew "graphite2"
 
 # Applications
 cask "brave-browser"
+cask "arc"
 cask "transmission"
 cask "vlc"
 cask "font-fira-code-nerd-font"
