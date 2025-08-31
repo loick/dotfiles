@@ -5,13 +5,18 @@
   pager = diff-so-fancy | less --tabs=4 -RFX --mouse
   logallrefupdates = true
 	editor = cursor --wait
+  excludesfile = ~/.config/git/.gitignore
+
 [init]
 	defaultBranch = main
+
 [user]
   name = Loick Le Digabel
   email = loick.ledigabel@gmail.com
+
 [rerere]
   enabled = true
+
 [alias]
   wh = !git ls-files | grep -i
   st = status
@@ -40,14 +45,19 @@
   lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit
 	logs = log --show-signature
 	cis = commit -S
+
 [color]
   ui = auto
+
 [merge]
   summary = true
+
 [push]
   default = current
+
 [diff-so-fancy]
 	markEmptyLines = false
+
 [commit]
 	template = ~/.config/git/.git-commit.tpl
 	gpgSign = false

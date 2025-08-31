@@ -102,10 +102,6 @@ source $ZSH/oh-my-zsh.sh
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# Initialise Zoxide (z)
-# See https://github.com/ajeetdsouza/zoxide
-eval "$(zoxide init zsh)"
-
 # Brew
 export PATH="/opt/homebrew/bin:$PATH"
 export PATH=/usr/local/bin:$PATH
@@ -117,7 +113,6 @@ export PATH="$VOLTA_HOME/bin:$PATH"
 export ANDROID_HOME=$HOME/Library/Android/sdk
 export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/platform-tools
-
 
 function cursor {
   open -a "/Applications/Cursor.app" "$@"
