@@ -117,3 +117,4 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools
 function cursor {
   open -a "/Applications/Cursor.app" "$@"
 }
+export CLAUDE_CODE_EXECUTABLE="/opt/homebrew/bin/claude"

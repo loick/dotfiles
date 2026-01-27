@@ -16,8 +16,12 @@ alias y="yarn"
 alias grep="rg"
 alias p="pnpm"
 
+# Typescript Reset + Force
+alias tsr="rm **/tsconfig.tsbuildinfo && y typecheck --force"
+
 # Graphite
 function gcreate() {
   gt create $1 --all --ai
 }
 alias gsubmit="gt submit --publish --ai --web false --no-edit"
+alias grefresh="gt sync && gt ss"
