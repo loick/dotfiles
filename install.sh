@@ -21,6 +21,12 @@ ln -Fs "$(pwd)/git/.gitignore"      ~/.config/git/.gitignore
 ln -Fs "$(pwd)/git/.git-commit.tpl" ~/.config/git/.git-commit.tpl
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Claude
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+sh "$(pwd)/claude/claude.sh"
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Brew
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
