@@ -1,11 +1,58 @@
-## Plan Mode
+## Workflow Orchestration
 
-- Make the plan extremely concise. Sacrifice grammar for the sake of concision.
-- At the end of each plan, give me a list of unresolved questions to answer, if any.
+### 1. Plan Mode Default
 
-## Context7
+* Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
+* Question blind spots before specifying
+* Propose alternatives if the feature seems poorly thought out
+* If something goes sideways, STOP and re-plan immediately – don't keep pushing
+* Use plan mode for verification steps, not just building
+* Make the plan extremely concise. Sacrifice grammar for the sake of concision.
+* At the end of each plan, give me a list of unresolved questions to answer, if any.
 
-Always use Context7 to get relevant documentation on a library before starting a new task.
+### 2. Subagent Strategy
+
+* Use subagents liberally to keep main context window clean
+* Offload research, exploration, and parallel analysis to subagents
+* For complex problems, throw more compute at it via subagents
+* One task per subagent for focused execution
+
+### 3. Self-Improvement Loop
+
+* After ANY correction from the user: update `tasks/lessons.md` with the pattern
+* Write rules for yourself that prevent the same mistake
+* Ruthlessly iterate on these lessons until mistake rate drops
+* Review lessons at session start for relevant project
+
+### 4. Verification Before Done
+
+* Never mark a task complete without proving it works
+* Ask yourself: "Would a staff engineer approve this?"
+
+### 5. Demand Elegance
+
+* For non-trivial changes: pause and ask "is there a more elegant way?"
+
+---
+
+## Task Management
+
+1. **Plan First**: Write plan to `tasks/todo.md` with checkable items
+2. **Verify Plan**: Check in before starting implementation
+3. **Track Progress**: Mark items complete as you go
+4. **Explain Changes**: High-level summary at each step
+5. **Document Results**: Add review section to `tasks/todo.md`
+6. **Capture Lessons**: Update `tasks/lessons.md` after corrections
+
+---
+
+## Core Principles
+
+* **Simplicity First**: Make every change as simple as possible. Impact minimal code.
+* **No Laziness**: Find root causes. No temporary fixes. Senior developer standards.
+* **Minimal Impact**: Changes should only touch what's necessary.
+
+---
 
 ## JSX Formatting
 
@@ -28,7 +75,3 @@ Always use Context7 to get relevant documentation on a library before starting a
   <ComponentC />
 </Layout.Column>
 ```
-
-## Git
-
-Never bypass CI. Precommit hooks must not be skipped, bypassed, removed, or modified.
