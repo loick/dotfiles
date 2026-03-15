@@ -9,6 +9,7 @@ AGENTS_DIR="$(pwd)/claude/agents"
 
 mkdir -p ~/.claude
 ln -Fs "$(pwd)/claude/CLAUDE.md" ~/.claude/CLAUDE.md
+echo "✔ Claude.md symlink"
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Agents (contains-studio/agents)
@@ -21,3 +22,4 @@ else
 fi
 
 ln -Fs "$AGENTS_DIR" ~/.claude/agents
+echo "✔ Claude agents symlink"

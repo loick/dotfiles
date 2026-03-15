@@ -21,12 +21,6 @@ ln -Fs "$(pwd)/git/.gitignore"      ~/.config/git/.gitignore
 ln -Fs "$(pwd)/git/.git-commit.tpl" ~/.config/git/.git-commit.tpl
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Claude
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-sh "$(pwd)/claude/claude.sh"
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Brew
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -67,3 +61,9 @@ echo "✔ Tap to click configured"
 
 defaults write com.apple.LaunchServices LSQuarantine -bool false
 echo "✔ 'Are you sure you want to open this application?' dialog disabled"
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Claude
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+sh "$(pwd)/claude/claude.sh"
