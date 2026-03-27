@@ -116,3 +116,13 @@ function cursor {
 export CLAUDE_CODE_EXECUTABLE="/opt/homebrew/bin/claude"
 eval "$(mise activate zsh)"
 eval "$(mise activate zsh)"
+
+
+# TELEMETRY DISABLED
+export RTK_TELEMETRY_DISABLED=1
+export KUBB_DISABLE_TELEMETRY=1
+
+# NVM (Lucis)
+export NVM_DIR="$HOME/.nvm"
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"

@@ -7,6 +7,7 @@ brew "ripgrep"
 brew "mise"
 brew "zoxide"
 brew "graphite2"
+brew "rtk"
 
 # Applications
 cask "brave-browser"
