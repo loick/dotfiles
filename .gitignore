@@ -6,3 +6,6 @@
 
 # Cloned repos
 claude/agents/
+
+.agents/
+.claude/
