@@ -10,9 +10,8 @@
 [init]
 	defaultBranch = main
 
-[user]
-  name = Loick Le Digabel
-  email = loick.ledigabel@gmail.com
+[include]
+  path = ~/.config/git/user.gitconfig
 
 [rerere]
   enabled = true

@@ -1,6 +1,17 @@
 #!/bin/sh
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Env
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+if [ -f "$(pwd)/.env" ]; then
+  . "$(pwd)/.env"
+  echo "✔ .env loaded"
+else
+  echo "⚠ No .env file found — copy .env.example to .env and fill in your values"
+fi
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # ZSH
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -19,6 +30,13 @@ mkdir -p ~/.config/git
 ln -Fs "$(pwd)/git/.gitconfig"      ~/.gitconfig
 ln -Fs "$(pwd)/git/.gitignore"      ~/.config/git/.gitignore
 ln -Fs "$(pwd)/git/.git-commit.tpl" ~/.config/git/.git-commit.tpl
+
+if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
+  printf '[user]\n  name = %s\n  email = %s\n' "$GIT_USER_NAME" "$GIT_USER_EMAIL" > ~/.config/git/user.gitconfig
+  echo "✔ Git user configured ($GIT_USER_NAME <$GIT_USER_EMAIL>)"
+else
+  echo "⚠ GIT_USER_NAME or GIT_USER_EMAIL not set — skipping git user config"
+fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Brew

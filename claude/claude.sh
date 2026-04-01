@@ -23,3 +23,9 @@ fi
 
 ln -Fs "$AGENTS_DIR" ~/.claude/agents
 echo "✔ Claude agents symlink"
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# MCP Servers
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+sh "$(pwd)/claude/setup-mcp.sh"

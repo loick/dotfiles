@@ -1,5 +1,8 @@
 # MacOS
 .DS_Store
 
+# Secrets
+.env
+
 # Cloned repos
 claude/agents/
