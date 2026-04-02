@@ -25,12 +25,45 @@ add_mcp() {
   echo "  ✔ MCP '$name' added"
 }
 
+# Add a permission if it doesn't already exist.
+# Usage: add_permission <tool>
+add_permission() {
+  tool="$1"
+
+  existing=$(jq -r --arg tool "$tool" '.permissions.allow // [] | index($tool)' "$SETTINGS")
+  if [ "$existing" != "null" ]; then
+    echo "  ↳ Permission '$tool' already set, skipping"
+    return
+  fi
+
+  tmp=$(mktemp)
+  jq --arg tool "$tool" \
+    '.permissions.allow = ((.permissions.allow // []) + [$tool])' "$SETTINGS" > "$tmp" && mv "$tmp" "$SETTINGS"
+  echo "  ✔ Permission '$tool' added"
+}
+
 echo "Configuring Claude MCP servers..."
 
 add_mcp "context7" '{
   "command": "npx",
   "args": ["-y", "@upstash/context7-mcp@latest"]
 }'
+
+add_permission "mcp__context7__resolve-library-id"
+add_permission "mcp__context7__query-docs"
+
+if [ -z "$LINEAR_API_KEY" ]; then
+  echo "  ⚠ LINEAR_API_KEY not set, skipping Linear MCP"
+else
+  add_mcp "linear" "{
+    \"command\": \"npx\",
+    \"args\": [\"-y\", \"@linear/mcp-server\"],
+    \"env\": { \"LINEAR_API_KEY\": \"$LINEAR_API_KEY\" }
+  }"
+  add_permission "mcp__linear__get_authenticated_user"
+  add_permission "mcp__linear__save_issue"
+  add_permission "mcp__linear__list_teams"
+fi
 
 if [ -z "$NOTION_API_TOKEN" ]; then
   echo "  ⚠ NOTION_API_TOKEN not set, skipping Notion MCP"
