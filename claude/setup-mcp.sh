@@ -60,11 +60,13 @@ else
     \"args\": [\"-y\", \"@linear/mcp-server\"],
     \"env\": { \"LINEAR_API_KEY\": \"$LINEAR_API_KEY\" }
   }"
-  add_permission "mcp__linear__get_authenticated_user"
-  add_permission "mcp__linear__save_issue"
-  add_permission "mcp__linear__list_teams"
-  add_permission "mcp__linear__list_milestones"
 fi
+
+# We want to allow permissions anyway, if Linear is configured directly from Claude Code.
+add_permission "mcp__linear__get_authenticated_user"
+add_permission "mcp__linear__save_issue"
+add_permission "mcp__linear__list_teams"
+add_permission "mcp__linear__list_milestones"
 
 if [ -z "$NOTION_API_TOKEN" ]; then
   echo "  ⚠ NOTION_API_TOKEN not set, skipping Notion MCP"
