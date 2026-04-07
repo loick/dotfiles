@@ -63,6 +63,7 @@ else
   add_permission "mcp__linear__get_authenticated_user"
   add_permission "mcp__linear__save_issue"
   add_permission "mcp__linear__list_teams"
+  add_permission "mcp__linear__list_milestones"
 fi
 
 if [ -z "$NOTION_API_TOKEN" ]; then

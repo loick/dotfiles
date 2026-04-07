@@ -65,6 +65,18 @@ for skill in "$SKILLS_SRC"/*; do
 done
 echo "✔ Custom skills copied"
 
+# Install CLI symlinks for any skill that ships a <name>.sh script
+mkdir -p "$HOME/bin"
+for skill in "$SKILLS_DST"/*; do
+  name="$(basename "$skill")"
+  script="$skill/$name.sh"
+  if [ -f "$script" ]; then
+    chmod +x "$script"
+    ln -sf "$script" "$HOME/bin/$name"
+    echo "✔ $name CLI installed to ~/bin/$name"
+  fi
+done
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Remote Skills
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -83,6 +95,25 @@ if command -v skills > /dev/null 2>&1 || npm install -g skills > /dev/null 2>&1;
 else
   echo "⚠ Could not install skills CLI — skipping remote skills"
 fi
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Settings
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+SETTINGS_FILE="$HOME/.claude/settings.json"
+
+if [ ! -f "$SETTINGS_FILE" ]; then
+  echo '{"permissions":{"allow":["Read"]}}' > "$SETTINGS_FILE"
+else
+  # Add "Read" to permissions.allow if not already present
+  if command -v jq > /dev/null 2>&1; then
+    tmp=$(mktemp)
+    jq 'if (.permissions.allow | index("Read")) == null then .permissions.allow += ["Read"] else . end' "$SETTINGS_FILE" > "$tmp" && mv "$tmp" "$SETTINGS_FILE"
+  else
+    echo "⚠ jq not found — skipping settings.json merge (install jq to enable)"
+  fi
+fi
+echo "✔ Claude settings configured"
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # MCP Servers
