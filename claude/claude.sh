@@ -61,9 +61,10 @@ mkdir -p "$SKILLS_DST"
 for skill in "$SKILLS_SRC"/*; do
   name="$(basename "$skill")"
   [ "$name" = ".gitkeep" ] && continue
-  cp -rf "$skill" "$SKILLS_DST/$name"
+  rm -rf "$SKILLS_DST/$name"
+  ln -Fs "$skill" "$SKILLS_DST/$name"
 done
-echo "✔ Custom skills copied"
+echo "✔ Custom skills symlinked"
 
 # Install CLI symlinks for any skill that ships a <name>.sh script
 mkdir -p "$HOME/bin"

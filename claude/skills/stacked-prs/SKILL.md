@@ -114,3 +114,39 @@ When reporting status, include:
 - Branch currently being worked on.
 - PRs blocked by upstream changes.
 - Any required rebases or force-pushes.
+
+---
+  Gotchas
+
+  commit-id lines are sacred
+
+  spr identifies commits by the commit-id:xxx line in the commit body. If these are missing, git spr update treats the stack as empty and will reset your branch to
+  origin/main, silently losing all commits.
+
+  After any manual git rebase, always verify:
+  git log --format=%B origin/main..HEAD | grep commit-id
+
+  If commit-ids were stripped, restore them via an edit rebase:
+  GIT_SEQUENCE_EDITOR="sed -i '' 's/^pick /edit /g'" git rebase -i origin/main
+  # Then for each commit:
+  git commit --amend  # add the commit-id line back
+  git rebase --continue
+
+  If commit-ids were duplicated (old + new), remove the extras the same way. Always keep the original commit-id that matches the existing PR.
+
+  Multi-commit changes (renames, shared file edits)
+
+  When a change touches multiple commits in the stack (e.g. renaming a file imported across several commits), never amend one commit at a time — intermediate states will have
+  broken imports and cause rebase conflicts.
+
+  Instead, create all fixup commits first, then squash in a single rebase:
+  git add <files-for-commit-A> && git commit --fixup <hash-A>
+  git add <files-for-commit-B> && git commit --fixup <hash-B>
+  git add <files-for-commit-C> && git commit --fixup <hash-C>
+  # Then one rebase to squash them all:
+  git rebase -i --autosquash origin/main
+
+  Don't use git rebase --exec with git commit --amend
+
+  The amend rewrites the commit, which leaves the working tree in a "dirty" state that blocks the rebase from continuing. Use edit mode and amend each commit manually instead.
+
