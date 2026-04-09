@@ -1,3 +1,5 @@
+tap "ejoffe/homebrew-tap"
+
 brew "bat"
 brew "cloc"
 brew "diff-so-fancy"
@@ -6,7 +8,7 @@ brew "jq"
 brew "ripgrep"
 brew "mise"
 brew "zoxide"
-brew "graphite2"
+brew "ejoffe/tap/spr"
 brew "rtk"
 
 # Applications
