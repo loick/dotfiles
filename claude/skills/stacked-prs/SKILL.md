@@ -107,6 +107,22 @@ Each PR in `git spr status` shows 4 indicators:
 
 All required bits must be ✅ before merging.
 
+## spr PR descriptions
+
+When creating stacked PRs with `git spr update`, spr auto-generates PR descriptions but does NOT include the local branch name. The PR only shows the auto-generated `spr/main/<commit-id>` branch, making it impossible to find the local branch from the GitHub UI.
+
+After running `git spr update`, always add the local branch name to each PR description using:
+
+```bash
+BRANCH=$(git branch --show-current)
+# For each PR number returned by spr:
+gh pr edit <PR_NUMBER> --body "$(gh pr view <PR_NUMBER> --json body -q .body)
+
+---
+**Local branch:** \`$BRANCH\`"
+
+This appends a footer to the existing spr-generated body without overwriting the stack links.
+
 ## Output Format
 
 When reporting status, include:
