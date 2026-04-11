@@ -1,12 +1,6 @@
 # Installation
 
-First, install oh-my-zsh.
-
-```sh
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-```
-
-## Then, clone this repository, and run the install script.
+Clone this repository, and run the install script.
 
 ```sh
 git clone https://github.com/loick/dotfiles.git

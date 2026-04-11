@@ -17,13 +17,12 @@ fi
 
 ln -Fs "$(pwd)/zsh/.zshrc" ~/.zshrc
 
-# Any file symlinked to ZSH custom directory will be automatically sourced.
-# See https://github.com/ohmyzsh/ohmyzsh/issues/4865#issuecomment-401121707.
-ln -Fs "$(pwd)/zsh/aliases.zsh" "$ZSH/custom/aliases.zsh"
-ln -Fs "$(pwd)/zsh/env.zsh"     "$ZSH/custom/env.zsh"
+mkdir -p ~/.config/zsh
+ln -Fs "$(pwd)/zsh/aliases.zsh" ~/.config/zsh/aliases.zsh
+ln -Fs "$(pwd)/zsh/env.zsh"     ~/.config/zsh/env.zsh
 
-if [ ! -d "$ZSH/custom/plugins/zsh-shift-select" ]; then
-  git clone https://github.com/jirutka/zsh-shift-select "$ZSH/custom/plugins/zsh-shift-select"
+if [ ! -d ~/.config/zsh/plugins/zsh-shift-select ]; then
+  git clone https://github.com/jirutka/zsh-shift-select ~/.config/zsh/plugins/zsh-shift-select
   echo "✔ zsh-shift-select plugin installed"
 fi
 
