@@ -3,3 +3,4 @@ command = /bin/zsh --login
 font-family = FiraCode Nerd Font
 theme = Dracula
 macos-titlebar-style = tabs
+selection-word-chars = -_~.'
