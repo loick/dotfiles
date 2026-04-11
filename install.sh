@@ -74,6 +74,11 @@ mkdir -p ~/.config/ghostty
 ln -Fs "$(pwd)/ghostty/config" ~/.config/ghostty/config
 echo "✔ Ghostty config linked"
 
+mkdir -p ~/Library/Application\ Support/Cursor/User
+ln -Fs "$(pwd)/cursor/settings.json"    ~/Library/Application\ Support/Cursor/User/settings.json
+ln -Fs "$(pwd)/cursor/keybindings.json" ~/Library/Application\ Support/Cursor/User/keybindings.json
+echo "✔ Cursor config linked"
+
 if [ -n "$CLEANSHOT_ACTIVATION_KEY" ]; then
   sed -e "s|__HOME__|$HOME|g" -e "s|__CLEANSHOT_ACTIVATION_KEY__|$CLEANSHOT_ACTIVATION_KEY|g" "$(pwd)/cleanshot/config.xml" | plutil -convert binary1 -o ~/Library/Preferences/pl.maketheweb.cleanshotx.plist -
   echo "✔ CleanShot config restored"
