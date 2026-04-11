@@ -22,6 +22,11 @@ ln -Fs "$(pwd)/zsh/.zshrc" ~/.zshrc
 ln -Fs "$(pwd)/zsh/aliases.zsh" "$ZSH/custom/aliases.zsh"
 ln -Fs "$(pwd)/zsh/env.zsh"     "$ZSH/custom/env.zsh"
 
+if [ ! -d "$ZSH/custom/plugins/zsh-shift-select" ]; then
+  git clone https://github.com/jirutka/zsh-shift-select "$ZSH/custom/plugins/zsh-shift-select"
+  echo "✔ zsh-shift-select plugin installed"
+fi
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Git
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -30,6 +35,7 @@ mkdir -p ~/.config/git
 ln -Fs "$(pwd)/git/.gitconfig"      ~/.gitconfig
 ln -Fs "$(pwd)/git/.gitignore"      ~/.config/git/.gitignore
 ln -Fs "$(pwd)/git/.git-commit.tpl" ~/.config/git/.git-commit.tpl
+ln -Fs "$(pwd)/git/.gitaliases"     ~/.config/git/.gitaliases
 
 if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
   printf '[user]\n  name = %s\n  email = %s\n' "$GIT_USER_NAME" "$GIT_USER_EMAIL" > ~/.config/git/user.gitconfig
@@ -49,6 +55,7 @@ if ! [ -x "$(command -v brew)" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
+brew update
 brew bundle install --file "$(pwd)/Brewfile"
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -56,29 +63,37 @@ brew bundle install --file "$(pwd)/Brewfile"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 gh config set git_protocol ssh
-gh config set editor "code --wait"
+gh config set editor "cursor --wait"
 echo "✔ gh configured"
+
+mkdir -p ~/.config
+ln -Fs "$(pwd)/starship/starship.toml" ~/.config/starship.toml
+echo "✔ Starship config linked"
+
+mkdir -p ~/.config/ghostty
+ln -Fs "$(pwd)/ghostty/config" ~/.config/ghostty/config
+echo "✔ Ghostty config linked"
+
+if [ -n "$CLEANSHOT_ACTIVATION_KEY" ]; then
+  sed -e "s|__HOME__|$HOME|g" -e "s|__CLEANSHOT_ACTIVATION_KEY__|$CLEANSHOT_ACTIVATION_KEY|g" "$(pwd)/cleanshot/config.xml" | plutil -convert binary1 -o ~/Library/Preferences/pl.maketheweb.cleanshotx.plist -
+  echo "✔ CleanShot config restored"
+else
+  echo "⚠ CLEANSHOT_ACTIVATION_KEY not set — skipping CleanShot config"
+fi
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# LinearMouse
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+mkdir -p ~/.config/linearmouse
+ln -Fs "$(pwd)/linearmouse/linearmouse.json" ~/.config/linearmouse/linearmouse.json
+
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # MacOS Settings
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-defaults write com.apple.finder QuitMenuItem -bool true
-echo "✔ Finder may be quit"
-
-defaults write com.apple.finder AppleShowAllFiles true
-echo "✔ Dotfiles shown in Finder"
-
-defaults write com.apple.dock static-only -bool true
-echo "✔ Dock now only show active applications"
-
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
-defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
-defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
-echo "✔ Tap to click configured"
-
-defaults write com.apple.LaunchServices LSQuarantine -bool false
-echo "✔ 'Are you sure you want to open this application?' dialog disabled"
+sh "$(pwd)/mac/install.sh"
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Claude

@@ -7,7 +7,6 @@
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-alias where='git ls-tree -r HEAD | grep'
 alias k="kubectl"
 alias n="sudo n"
 alias la="ls -la"

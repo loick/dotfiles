@@ -1,0 +1,111 @@
+# Aliases prefixed with "!" run as shell commands (needed for pipes, &&, subshells).
+# Without "!", git implicitly prepends "git" to the command.
+
+[alias]
+  # --- Navigation ---
+  # Show working tree status
+  st = status
+  # Switch branches or restore files
+  co = checkout
+  # Jump back to main branch
+  root = checkout main
+
+  # --- Branching ---
+  # List branches with last commit info
+  br = branch -v
+  # List all branches (local + remote) with last commit info
+  ba = branch -v -a
+  # Force-delete a branch
+  del = branch -D
+  # Branches sorted by most recent commit
+  recent = branch --sort=-committerdate --format='%(committerdate:relative)%09%(refname:short)'
+
+  # --- Branch cleanup (squash-merge friendly) ---
+  # List branches whose remote tracking branch is gone
+  gone = !git for-each-ref --format='%(refname:short) %(upstream:track)' refs/heads/ | awk '$2 == \"[gone]\" { print $1 }'
+  # Delete all "gone" branches in one shot
+  bclean = !git gone | xargs -r git branch -D
+
+  # --- Committing ---
+  # Commit all tracked changes with verbose diff in editor
+  ci = commit -va
+  # Amend the last commit
+  fix = commit --amend
+  # Commit with GPG signature
+  cis = commit -S
+
+  # --- Pushing ---
+  # Force-push safely (fails if remote has new commits)
+  pushf = push --force-with-lease
+
+  # --- Rebasing ---
+  # Interactive rebase of all commits since diverging from main
+  squash = !git rebase -i $(git merge-base origin/main HEAD)
+  # Fetch, prune, and rebase onto origin/master
+  rb = !git fetch -p && git rebase origin/master
+  # Continue an in-progress rebase
+  rbc = rebase --continue
+  # Skip the current patch during rebase
+  rbs = rebase --skip
+  # Abort an in-progress rebase
+  rba = rebase --abort
+
+  # --- Cherry-picking ---
+  # Cherry-pick a commit onto current branch
+  cp = cherry-pick
+  # Continue an in-progress cherry-pick
+  cpc = cherry-pick --continue
+  # Skip the current commit during cherry-pick
+  cps = cherry-pick --skip
+  # Abort an in-progress cherry-pick
+  cpa = cherry-pick --abort
+
+  # --- Diffing ---
+  # Short stat of changes between main and current branch
+  stats = !git diff origin/main..$(git rev-parse --symbolic-full-name --abbrev-ref HEAD) --shortstat
+
+  # --- Searching ---
+  # Find tracked files by name (case-insensitive)
+  wh = !git ls-files | grep -i
+
+  # --- Remotes ---
+  # Fetch updates from all remotes
+  ru = remote update
+  # Hard reset to a given ref (destructive!)
+  rw = reset --hard
+
+  # --- Logging ---
+  # Colorful graph log with branch decorations
+  blog = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)%Creset' --abbrev-commit
+  # Compact one-line log
+  slog = log --pretty=oneline --abbrev-commit
+  # Log with list of changed files per commit
+  nlog = log --name-status
+  # Log with full diff (patch) for each commit
+  dlog = log -p
+  # Compact graph log with dates and author
+  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+  # Colorful graph log with relative dates and author
+  lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit
+  # Log with GPG signature verification
+  logs = log --show-signature
+
+  # --- Code archaeology ---
+
+  # Top 20 most-changed files in the last year — reveals maintenance hotspots
+  churn = !git log --format=format: --name-only --since=\"1 year ago\" | sort | uniq -c | sort -nr | head -20
+
+  # Contributors ranked by commit count — assess team composition & bus factor
+  who = shortlog -sn --no-merges
+
+  # Same as above but last 6 months only — identify current active maintainers
+  who-recent = shortlog -sn --no-merges --since=\"6 months ago\"
+
+  # Top 20 files with the most bug/fix-related commits — find defect-prone code
+  bugs = !git log -i -E --grep=\"fix|bug|broken\" --name-only --format='' | sort | uniq -c | sort -nr | head -20
+
+  # Monthly commit counts across the repo history — spot acceleration or slowdowns
+  velocity = !git log --format='%ad' --date=format:'%Y-%m' | sort | uniq -c
+
+  # Reverts, hotfixes, and emergencies in the last year — measure firefighting frequency
+  crises = log --oneline --since=\"1 year ago\" --grep='revert\\|hotfix\\|emergency\\|rollback' -i -E

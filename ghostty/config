@@ -1,0 +1,5 @@
+macos-option-as-alt = true
+command = /bin/zsh --login
+font-family = FiraCode Nerd Font
+theme = Dracula
+macos-titlebar-style = tabs
