@@ -16,14 +16,12 @@
         "**/.svn": true,
         "**/.hg": true,
         "**/CVS": true,
-        "**/dist": true,
         "**/.DS_Store": true,
         "**/tsconfig.tsbuildinfo": true,
         "**/*.log": true
     },
     "files.watcherExclude": {
         "**/node_modules/**": true,
-        "**/dist/**": true,
         "**/.turbo/**": true,
         "**/.expo/**": true,
         "**/.next/**": true,

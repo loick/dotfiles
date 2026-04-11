@@ -31,7 +31,6 @@ function cursor {
 }
 export CLAUDE_CODE_EXECUTABLE="/opt/homebrew/bin/claude"
 eval "$(mise activate zsh)"
-eval "$(zoxide init zsh --cmd cd)"
 eval "$(starship init zsh)"
 
 # TELEMETRY DISABLED
@@ -42,3 +41,5 @@ export KUBB_DISABLE_TELEMETRY=1
 export NVM_DIR="$HOME/.nvm"
 [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
 [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+
+eval "$(zoxide init zsh --cmd cd)"
