@@ -4,7 +4,6 @@ format = """
 $directory\
 $git_branch\
 $git_status\
-$cmd_duration\
 $line_break\
 $character"""
 
@@ -35,9 +34,7 @@ deleted = '[x${count}](red) '
 stashed = '[≡${count}](cyan) '
 
 [cmd_duration]
-min_time = 500
-format = "took [$duration]($style) "
-style = "bold yellow"
+disabled = true
 
 [nodejs]
 disabled = true
