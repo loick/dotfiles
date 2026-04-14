@@ -1,10 +1,14 @@
 #!/bin/sh
 
 SETTINGS="$HOME/.claude/settings.json"
+MCP_FILE="$HOME/.claude.json"
 
-# Ensure settings.json exists with valid JSON
+# Ensure files exist with valid JSON
 if [ ! -f "$SETTINGS" ]; then
   echo "{}" > "$SETTINGS"
+fi
+if [ ! -f "$MCP_FILE" ]; then
+  echo "{}" > "$MCP_FILE"
 fi
 
 # Add an MCP server if it doesn't already exist.
@@ -13,7 +17,7 @@ add_mcp() {
   name="$1"
   config="$2"
 
-  existing=$(jq -r --arg name "$name" '.mcpServers[$name] // empty' "$SETTINGS")
+  existing=$(jq -r --arg name "$name" '.mcpServers[$name] // empty' "$MCP_FILE")
   if [ -n "$existing" ]; then
     echo "  ↳ MCP '$name' already configured, skipping"
     return
@@ -21,7 +25,7 @@ add_mcp() {
 
   tmp=$(mktemp)
   jq --arg name "$name" --argjson config "$config" \
-    '.mcpServers[$name] = $config' "$SETTINGS" > "$tmp" && mv "$tmp" "$SETTINGS"
+    '.mcpServers[$name] = $config' "$MCP_FILE" > "$tmp" && mv "$tmp" "$MCP_FILE"
   echo "  ✔ MCP '$name' added"
 }
 
@@ -72,8 +76,7 @@ if [ -z "$NOTION_API_TOKEN" ]; then
   echo "  ⚠ NOTION_API_TOKEN not set, skipping Notion MCP"
 else
   add_mcp "notion" "{
-    \"command\": \"npx\",
-    \"args\": [\"-y\", \"@notionhq/notion-mcp-server\"],
-    \"env\": { \"OPENAPI_MCP_HEADERS\": \"{\\\"Authorization\\\": \\\"Bearer $NOTION_API_TOKEN\\\", \\\"Notion-Version\\\": \\\"2022-06-28\\\"}\" }
+    \"command\": \"notion-mcp-server\",
+    \"env\": { \"NOTION_TOKEN\": \"$NOTION_API_TOKEN\" }
   }"
 fi

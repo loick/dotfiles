@@ -1,6 +1,45 @@
 macos-option-as-alt = true
 command = /bin/zsh --login
-font-family = FiraCode Nerd Font
-theme = Dracula
-macos-titlebar-style = tabs
 selection-word-chars = -_~.'
+
+# --- Typography ---
+font-family = "JetBrainsMono Nerd Font Mono"
+font-size = 13
+font-thicken = true
+font-thicken-strength = 100
+
+# --- Theme and Colors ---
+theme = Catppuccin Mocha
+
+# --- Window and Appearance ---
+background-opacity = 0.9
+background-blur = macos-glass-regular
+macos-titlebar-style = transparent
+window-padding-x = 10
+window-padding-balance = true
+window-padding-color = extend
+window-save-state = always
+window-new-tab-position = end
+
+# --- Cursor ---
+cursor-style = bar
+cursor-style-blink = true
+cursor-click-to-move = true
+
+# --- Mouse ---
+mouse-hide-while-typing = true
+copy-on-select = clipboard
+clipboard-trim-trailing-spaces = true
+selection-clear-on-copy = true
+
+# --- Splits ---
+unfocused-split-opacity = 0.85
+split-divider-color = #45475a
+resize-overlay-position = bottom-right
+
+# --- Keybindings ---
+keybind = global:ctrl+grave_accent=toggle_quick_terminal
+keybind = shift+enter=text:\n
+
+# --- Performance ---
+scrollback-limit = 100000

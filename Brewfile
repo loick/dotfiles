@@ -11,7 +11,6 @@ brew "starship"
 brew "zoxide"
 brew "zsh-autosuggestions"
 brew "eza"
-brew "ejoffe/tap/spr"
 brew "rtk"
 
 # Applications

@@ -5,7 +5,9 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 if [ -f "$(pwd)/.env" ]; then
+  set -a
   . "$(pwd)/.env"
+  set +a
   echo "✔ .env loaded"
 else
   echo "⚠ No .env file found — copy .env.example to .env and fill in your values"
