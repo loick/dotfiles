@@ -21,6 +21,36 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools
 source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.config/zsh/plugins/zsh-shift-select/zsh-shift-select.plugin.zsh
 
+# Copy zsh selection to system clipboard
+function shift-select::copy-region() {
+  if ((REGION_ACTIVE)); then
+    local start=$MARK end=$CURSOR
+    if ((start > end)); then local tmp=$start; start=$end; end=$tmp; fi
+    print -rn -- "${BUFFER[$start+1,$end]}" | pbcopy
+    zle deactivate-region -w
+    zle -K main
+  fi
+}
+zle -N shift-select::copy-region
+
+# Type over selection: delete selected text then process the key
+function shift-select::replace-region() {
+  zle kill-region -w
+  zle -K main
+  zle -U "$KEYS"
+}
+zle -N shift-select::replace-region
+bindkey -M shift-select -R '^@'-'^?' shift-select::replace-region
+
+# Bind Cmd+C (sent as custom escape from Ghostty) to copy selection
+bindkey -M shift-select '^[yc' shift-select::copy-region
+
+# Bind Cmd+Shift+Left/Right (sent as custom escapes from Ghostty) to select to line boundaries
+bindkey -M emacs '^[yl' shift-select::beginning-of-line
+bindkey -M shift-select '^[yl' shift-select::beginning-of-line
+bindkey -M emacs '^[yr' shift-select::end-of-line
+bindkey -M shift-select '^[yr' shift-select::end-of-line
+
 # Custom config
 source ~/.config/zsh/aliases.zsh
 source ~/.config/zsh/env.zsh

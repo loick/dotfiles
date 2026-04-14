@@ -18,6 +18,11 @@ echo "✔ 'Are you sure you want to open this application?' dialog disabled"
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 echo "✔ Press-and-hold accent popup disabled (key repeat instead)"
 
+defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerTapGesture -int 0
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerTapGesture -int 0
+defaults write NSGlobalDomain com.apple.trackpad.forceClick -bool false
+echo "✔ Look Up & Data Detectors disabled (three-finger tap and force click)"
+
 defaults write com.apple.finder ShowStatusBar -bool true
 defaults write com.apple.finder ShowPathbar -bool true
 defaults write NSGlobalDomain AppleWindowTabbingMode -string "manual"

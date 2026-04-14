@@ -40,6 +40,9 @@ resize-overlay-position = bottom-right
 # --- Keybindings ---
 keybind = global:ctrl+grave_accent=toggle_quick_terminal
 keybind = shift+enter=text:\n
+keybind = cmd+c=text:\x1byc
+keybind = cmd+shift+left=text:\x1byl
+keybind = cmd+shift+right=text:\x1byr
 
 # --- Performance ---
 scrollback-limit = 100000
