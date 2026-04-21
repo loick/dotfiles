@@ -12,9 +12,11 @@ brew "zoxide"
 brew "zsh-autosuggestions"
 brew "eza"
 brew "rtk"
+brew "mole"
 
 # Applications
 cask "brave-browser"
+cask "google-chrome"
 cask "zen"
 cask "transmission"
 cask "vlc"

@@ -35,6 +35,12 @@
 
 ---
 
+## React
+
+- For Multi-part UI (tabs, dropdowns, menus), prefer compound components with Context over prop drilling.
+- Compound component API: the main component IS the root (`<Breadcrumb>…</Breadcrumb>`), not a `.Root` child. Attach subparts as static properties (`Breadcrumb.Item`, `Breadcrumb.Separator`).
+- For every components, always keep the rule of 1 component per file.
+
 ## JSX Formatting
 
 - Add a blank line between sibling components in JSX for readability:
@@ -56,5 +62,8 @@
   <ComponentC />
 </Layout.Column>
 ```
+
+### MCPs
+When I want to connect to my personal MCP for:
 
 @RTK.md

@@ -40,9 +40,16 @@ resize-overlay-position = bottom-right
 # --- Keybindings ---
 keybind = global:ctrl+grave_accent=toggle_quick_terminal
 keybind = shift+enter=text:\n
-keybind = cmd+c=text:\x1byc
 keybind = cmd+shift+left=text:\x1byl
 keybind = cmd+shift+right=text:\x1byr
 
 # --- Performance ---
 scrollback-limit = 100000
+
+# --- Updates ---
+# Disable in-app auto-updates. Ghostty's Sparkle updater replaces the .app
+# bundle under a running process, which invalidates the Full Disk Access
+# TCC grant (CDHash mismatch) and silently breaks FDA until toggled off/on.
+# Update via `brew upgrade --cask ghostty` with the app quit instead.
+auto-update = off
+auto-update-channel = stable

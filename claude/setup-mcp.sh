@@ -11,22 +11,17 @@ if [ ! -f "$MCP_FILE" ]; then
   echo "{}" > "$MCP_FILE"
 fi
 
-# Add an MCP server if it doesn't already exist.
+# Upsert an MCP server config. Always overwrites so the script stays the source
+# of truth — re-running install.sh reconciles any config drift in ~/.claude.json.
 # Usage: add_mcp <name> <json-object>
 add_mcp() {
   name="$1"
   config="$2"
 
-  existing=$(jq -r --arg name "$name" '.mcpServers[$name] // empty' "$MCP_FILE")
-  if [ -n "$existing" ]; then
-    echo "  ↳ MCP '$name' already configured, skipping"
-    return
-  fi
-
   tmp=$(mktemp)
   jq --arg name "$name" --argjson config "$config" \
     '.mcpServers[$name] = $config' "$MCP_FILE" > "$tmp" && mv "$tmp" "$MCP_FILE"
-  echo "  ✔ MCP '$name' added"
+  echo "  ✔ MCP '$name' configured"
 }
 
 # Add a permission if it doesn't already exist.
@@ -56,6 +51,11 @@ add_mcp "context7" '{
 add_permission "mcp__context7__resolve-library-id"
 add_permission "mcp__context7__query-docs"
 
+add_mcp "chrome-devtools" '{
+  "command": "npx",
+  "args": ["-y", "chrome-devtools-mcp@latest"]
+}'
+
 if [ -z "$LINEAR_API_KEY" ]; then
   echo "  ⚠ LINEAR_API_KEY not set, skipping Linear MCP"
 else
@@ -80,3 +80,48 @@ else
     \"env\": { \"NOTION_TOKEN\": \"$NOTION_API_TOKEN\" }
   }"
 fi
+
+# Pinned to 1.1.11: upstream repo (GongRzhe/Gmail-MCP-Server) is archived, so we
+# freeze to the last published version to avoid any surprise supply-chain updates.
+GMAIL_OAUTH_KEYS="$(pwd)/gmail-oauth.keys.json"
+GMAIL_CREDENTIALS="$(pwd)/gmail-oauth.credentials.json"
+if [ ! -f "$GMAIL_OAUTH_KEYS" ]; then
+  echo "  ⚠ $GMAIL_OAUTH_KEYS not found — skipping personal Gmail MCP (see .env.example)"
+else
+  add_mcp "gmail-personal" "{
+    \"command\": \"npx\",
+    \"args\": [\"-y\", \"@gongrzhe/server-gmail-autoauth-mcp@1.1.11\"],
+    \"env\": {
+      \"GMAIL_OAUTH_PATH\": \"$GMAIL_OAUTH_KEYS\",
+      \"GMAIL_CREDENTIALS_PATH\": \"$GMAIL_CREDENTIALS\"
+    }
+  }"
+
+  if [ -f "$GMAIL_CREDENTIALS" ]; then
+    echo "  ↳ Gmail OAuth already authorized ($GMAIL_CREDENTIALS)"
+  else
+    echo "  ↳ Running one-time Gmail OAuth authorization (browser will open)..."
+    GMAIL_OAUTH_PATH="$GMAIL_OAUTH_KEYS" GMAIL_CREDENTIALS_PATH="$GMAIL_CREDENTIALS" \
+      npx -y @gongrzhe/server-gmail-autoauth-mcp@1.1.11 auth
+  fi
+fi
+
+add_permission "mcp__gmail-personal__send_email"
+add_permission "mcp__gmail-personal__draft_email"
+add_permission "mcp__gmail-personal__read_email"
+add_permission "mcp__gmail-personal__search_emails"
+add_permission "mcp__gmail-personal__modify_email"
+add_permission "mcp__gmail-personal__delete_email"
+add_permission "mcp__gmail-personal__list_email_labels"
+add_permission "mcp__gmail-personal__batch_modify_emails"
+add_permission "mcp__gmail-personal__batch_delete_emails"
+add_permission "mcp__gmail-personal__create_label"
+add_permission "mcp__gmail-personal__update_label"
+add_permission "mcp__gmail-personal__delete_label"
+add_permission "mcp__gmail-personal__get_or_create_label"
+add_permission "mcp__gmail-personal__create_filter"
+add_permission "mcp__gmail-personal__list_filters"
+add_permission "mcp__gmail-personal__get_filter"
+add_permission "mcp__gmail-personal__delete_filter"
+add_permission "mcp__gmail-personal__create_filter_from_template"
+add_permission "mcp__gmail-personal__download_attachment"

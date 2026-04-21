@@ -38,5 +38,6 @@
     "javascript.preferences.quoteStyle": "single",
     "typescript.preferences.quoteStyle": "single",
     "javascript.referencesCodeLens.enabled": true,
-    "javascript.updateImportsOnFileMove.enabled": "never"
+    "javascript.updateImportsOnFileMove.enabled": "never",
+    "explorer.confirmDragAndDrop": false
 }

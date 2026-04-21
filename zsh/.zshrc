@@ -42,7 +42,10 @@ function shift-select::replace-region() {
 zle -N shift-select::replace-region
 bindkey -M shift-select -R '^@'-'^?' shift-select::replace-region
 
-# Bind Cmd+C (sent as custom escape from Ghostty) to copy selection
+# Bind Cmd+C (sent as custom escape from Ghostty) to copy selection.
+# Bound in emacs keymap too so the escape is swallowed (no-op when no region),
+# otherwise '^[y' triggers yank-pop and 'c' leaks as literal text.
+bindkey -M emacs '^[yc' shift-select::copy-region
 bindkey -M shift-select '^[yc' shift-select::copy-region
 
 # Bind Cmd+Shift+Left/Right (sent as custom escapes from Ghostty) to select to line boundaries
@@ -72,4 +75,5 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
 [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
 
+export _ZO_DOCTOR=0 # Claude Code shell integration triggers a false positive
 eval "$(zoxide init zsh --cmd cd)"
