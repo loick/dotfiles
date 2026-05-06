@@ -57,38 +57,50 @@ Compute the date as `YYYY-MM-DD` in the user's local timezone. Use `date -v-Nd +
 
 ### Step 3: Fetch PR activity
 
-Run these two `gh` commands in parallel, scoped to the detected repo and filtered to the computed date. Use `--json` for structured output:
+Run these three `gh` commands in parallel, scoped to the detected repo. Use `--json` for structured output:
 
 ```bash
-# Merged by me
+# Merged by me on the target date
 gh pr list --repo <owner/repo> --author @me --state merged \
   --search "merged:>=<yesterday-date>" \
   --json number,title,mergedAt --limit 20
 
-# Opened by me (still open or closed-without-merge)
+# Opened by me on the target date (any current state)
 gh pr list --repo <owner/repo> --author @me \
   --search "created:>=<yesterday-date>" \
   --json number,title,state,createdAt --limit 20
+
+# Currently open PRs authored by me (no date filter — surfaces in-flight work)
+gh pr list --repo <owner/repo> --author @me --state open \
+  --json number,title,createdAt,isDraft --limit 30
 ```
 
-Deduplicate by PR number (a PR you opened and merged will appear in both lists). Prefer the most informative verb: `merged` > `opened`.
+All three queries feed a **single Yesterday list**. Assign each PR exactly one verb in this priority order, then dedupe by PR number:
+
+1. `merged` — in the merged-by-me list (merged on the target date).
+2. `opened` — in the opened-on-target-date list and not already labeled `merged`.
+3. `open` — in the currently-open list and not already labeled. This surfaces older lingering PRs awaiting review.
+
+Sort the final list as: all `merged` first, then `opened`, then `open`. Within each verb, keep the order the API returned (most recent first).
 
 Do NOT fetch or show reviewed PRs — only PRs authored by the user.
 
 ### Step 4: Show Yesterday draft
 
-Present the bulleted list to the user, labeling each item with its verb. If the PR title or branch contains a Linear ticket ID (e.g., `ENG-123`, `PROJ-456`), include it. Do NOT include GitHub URLs or PR links.
+Present a single bulleted list, labeling each item with its verb (`merged` / `opened` / `open`). Mark draft PRs with `(draft)` after the title. If the PR title or branch contains a Linear ticket ID (e.g., `ENG-123`, `PROJ-456`), include it. Do NOT include GitHub URLs or PR links.
 
 ```
 Here's what I found from <yesterday-date>:
 
 • merged: <PR title> (ENG-123)
 • opened: <PR title> (PROJ-456)
+• open: <PR title> (ENG-789)
+• open: <PR title> (draft) (ENG-790)
 
 Anything to add or remove? (Reply "none" to keep as-is.)
 ```
 
-If zero items: say so explicitly — "No PR activity found for <date>. What did you work on?"
+If the list is empty: "No PR activity found for <date> and no open PRs. What did you work on?"
 
 Apply the user's edits. Accept free-text additions and numbered removals (e.g., "remove 2, add: paired with Alex on spec").
 
@@ -124,8 +136,9 @@ Example rendering:
 𝐷𝑎𝑖𝑙𝑦 𝑆𝑡𝑎𝑛𝑑𝑢𝑝 — <today, e.g. Wed Apr 15>
 
 𝑌𝑒𝑠𝑡𝑒𝑟𝑑𝑎𝑦
-• <item>
-• <item>
+• merged: <PR title> (ENG-123)
+• opened: <PR title> (PROJ-456)
+• open: <PR title> (ENG-789)
 
 𝑇𝑜𝑑𝑎𝑦
 • <item>
@@ -155,7 +168,8 @@ Present the message inside a fenced code block so the user can triple-click + co
 | Using Slack markdown (`*bold*`, `_italic_`, `**bold**`, `[text](url)`) | Use Unicode italic glyphs directly; raw URLs |
 | Querying all repos instead of just the current one | Always scope with `--repo <owner/repo>` |
 | Counting weekend days as "yesterday" on Monday | Monday's yesterday is Friday |
-| Forgetting to dedupe PRs across the three queries | Dedup by PR number before rendering |
+| Forgetting to dedupe PRs across the three queries | Dedup by PR number before rendering — each PR appears in exactly one section |
+| Splitting yesterday + open into two sections | One combined Yesterday list with `merged` / `opened` / `open` verbs; dedupe by PR number |
 | Truncating long PR titles | Keep the full title — Slack handles wrapping |
 | Silently dropping Step 4 confirmation | Always show the draft and ask before proceeding |
 | Skipping `gh auth status` precheck | Check auth before querying — clearer error |
