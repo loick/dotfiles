@@ -79,6 +79,23 @@ for skill in "$SKILLS_DST"/*; do
 done
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Output Styles
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+OUTPUT_STYLES_SRC="$(pwd)/claude/output-styles"
+OUTPUT_STYLES_DST="$HOME/.claude/output-styles"
+
+if [ -d "$OUTPUT_STYLES_SRC" ]; then
+  mkdir -p "$OUTPUT_STYLES_DST"
+  for style in "$OUTPUT_STYLES_SRC"/*.md; do
+    [ -e "$style" ] || continue
+    name="$(basename "$style")"
+    ln -Fs "$style" "$OUTPUT_STYLES_DST/$name"
+  done
+  echo "✔ Output styles symlinked"
+fi
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Remote Skills
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -111,14 +128,17 @@ fi
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 SETTINGS_FILE="$HOME/.claude/settings.json"
+DEFAULT_OUTPUT_STYLE="Zero Trust Didactic"
 
 if [ ! -f "$SETTINGS_FILE" ]; then
-  echo '{"permissions":{"allow":["Read"]}}' > "$SETTINGS_FILE"
+  printf '{"permissions":{"allow":["Read"]},"outputStyle":"%s"}\n' "$DEFAULT_OUTPUT_STYLE" > "$SETTINGS_FILE"
 else
-  # Add "Read" to permissions.allow if not already present
   if command -v jq > /dev/null 2>&1; then
     tmp=$(mktemp)
-    jq 'if (.permissions.allow | index("Read")) == null then .permissions.allow += ["Read"] else . end' "$SETTINGS_FILE" > "$tmp" && mv "$tmp" "$SETTINGS_FILE"
+    jq --arg style "$DEFAULT_OUTPUT_STYLE" '
+      (if (.permissions.allow | index("Read")) == null then .permissions.allow += ["Read"] else . end)
+      | .outputStyle = $style
+    ' "$SETTINGS_FILE" > "$tmp" && mv "$tmp" "$SETTINGS_FILE"
   else
     echo "⚠ jq not found — skipping settings.json merge (install jq to enable)"
   fi
