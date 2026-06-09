@@ -56,8 +56,9 @@ if ! [ -x "$(command -v brew)" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-brew update
 brew bundle install --file "$(pwd)/Brewfile"
+brew update
+brew upgrade
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Applications

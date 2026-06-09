@@ -79,6 +79,23 @@ for skill in "$SKILLS_DST"/*; do
 done
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Commands (global slash commands)
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+COMMANDS_SRC="$(pwd)/claude/commands"
+COMMANDS_DST="$HOME/.claude/commands"
+
+if [ -d "$COMMANDS_SRC" ]; then
+  mkdir -p "$COMMANDS_DST"
+  for cmd in "$COMMANDS_SRC"/*.md; do
+    [ -e "$cmd" ] || continue
+    name="$(basename "$cmd")"
+    ln -Fs "$cmd" "$COMMANDS_DST/$name"
+  done
+  echo "✔ Global commands symlinked"
+fi
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Output Styles
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -124,19 +141,39 @@ else
 fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Plugins
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+PLUGINS_LIST="$(pwd)/claude/plugins.txt"
+
+if [ -f "$PLUGINS_LIST" ]; then
+  # Add each unique marketplace once
+  grep -v '^\s*#' "$PLUGINS_LIST" | grep -v '^\s*$' | awk '{print $1}' | sort -u | while read -r source; do
+    claude plugin marketplace add "$source" 2>/dev/null || true
+  done
+  # Install each plugin
+  grep -v '^\s*#' "$PLUGINS_LIST" | grep -v '^\s*$' | awk '{print $2}' | while read -r plugin; do
+    claude plugin install "$plugin" 2>/dev/null || true
+  done
+  echo "✔ Plugins installed"
+fi
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Settings
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 SETTINGS_FILE="$HOME/.claude/settings.json"
 DEFAULT_OUTPUT_STYLE="Zero Trust Didactic"
+DEFAULT_PERMISSION_MODE="default"
 
 if [ ! -f "$SETTINGS_FILE" ]; then
-  printf '{"permissions":{"allow":["Read"]},"outputStyle":"%s"}\n' "$DEFAULT_OUTPUT_STYLE" > "$SETTINGS_FILE"
+  printf '{"permissions":{"allow":["Read"],"defaultMode":"%s"},"outputStyle":"%s"}\n' "$DEFAULT_PERMISSION_MODE" "$DEFAULT_OUTPUT_STYLE" > "$SETTINGS_FILE"
 else
   if command -v jq > /dev/null 2>&1; then
     tmp=$(mktemp)
-    jq --arg style "$DEFAULT_OUTPUT_STYLE" '
+    jq --arg style "$DEFAULT_OUTPUT_STYLE" --arg mode "$DEFAULT_PERMISSION_MODE" '
       (if (.permissions.allow | index("Read")) == null then .permissions.allow += ["Read"] else . end)
+      | .permissions.defaultMode = $mode
       | .outputStyle = $style
     ' "$SETTINGS_FILE" > "$tmp" && mv "$tmp" "$SETTINGS_FILE"
   else

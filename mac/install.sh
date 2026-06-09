@@ -38,3 +38,6 @@ echo "✔ Finder defaults to list view"
 mkdir -p "$HOME/Desktop/screenshots"
 defaults write com.apple.screencapture location -string "$HOME/Desktop/screenshots"
 echo "✔ Screenshots saved to ~/Desktop/screenshots"
+
+defaults write NSGlobalDomain AppleKeyboardUIMode -int 2
+echo "✔ Full keyboard navigation enabled (arrow keys in Mission Control, Tab in dialogs)"
