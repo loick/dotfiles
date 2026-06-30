@@ -35,6 +35,12 @@
 
 ---
 
+## Comments
+
+A comment describes only the symbol it sits on — no vendor names, PR-references, call-sites, foreign internals, or restating the code. Try to delete the need for the comment first. Full rubric:
+
+@comment-rules.md
+
 ## React
 
 - For Multi-part UI (tabs, dropdowns, menus), prefer compound components with Context over prop drilling.

@@ -9,6 +9,9 @@ AGENTS_CACHE="$HOME/.claude/agents-src"
 
 mkdir -p ~/.claude
 ln -Fs "$(pwd)/claude/CLAUDE.md" ~/.claude/CLAUDE.md
+# Files @-imported by CLAUDE.md resolve relative to ~/.claude, so they must be
+# symlinked alongside it.
+ln -Fs "$(pwd)/claude/comment-rules.md" ~/.claude/comment-rules.md
 echo "✔ Claude.md symlink"
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
