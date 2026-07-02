@@ -41,6 +41,12 @@ A comment describes only the symbol it sits on — no vendor names, PR-reference
 
 @comment-rules.md
 
+## Agent docs (AGENTS.md / CLAUDE.md)
+
+Per-package agent docs describe the package's shape and boundaries, never its file names or symbols — write to the slow layer so a rename can't falsify them. Full rubric:
+
+@agent-doc-rules.md
+
 ## React
 
 - For Multi-part UI (tabs, dropdowns, menus), prefer compound components with Context over prop drilling.
