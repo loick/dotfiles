@@ -1,0 +1,282 @@
+#!/usr/bin/env bash
+#
+# eng-metrics — ad-hoc GitHub PR delivery metrics from the terminal (gh + jq).
+#
+# Two metrics, sliced by author, over any window, LoC band, and repo scope:
+#   lead-time  PR-open -> merge duration per author (median / mean / p90)
+#   reviews    review engagement per reviewer (comments, distinct PRs, per-PR avg)
+#
+# Definitions are deliberate and stated in --help: lead time is open->merge
+# (not first-commit->merge), and the review denominator defaults to distinct
+# PRs reviewed, not raw review events (which over-count ~3x because every batch
+# of inline comments is its own review object).
+#
+set -euo pipefail
+
+readonly DEFAULT_BOTS="cubic-dev-ai,cursor,sentry,dependabot,renovate,github-actions,mergify,codecov,coderabbitai,mendral-app,lucis-bot,lucis-gtm,stilla,chatgpt-codex-connector,copilot-pull-request-reviewer"
+
+die() { printf 'eng-metrics: %s\n' "$*" >&2; exit 1; }
+
+usage() {
+  cat <<'EOF'
+eng-metrics — GitHub PR delivery metrics (gh + jq)
+
+USAGE
+  eng-metrics <lead-time|reviews> [flags]
+
+SCOPE (choose one; default: current repo)
+  -r, --repo OWNER/NAME   Target one repo (repeatable). Defaults to the repo of $PWD.
+  -o, --org  NAME         Fan out over all non-archived, non-fork repos in the org.
+      --limit-repos N     Cap org fan-out (default 100).
+
+WINDOW
+  -s, --since YYYY-MM-DD   Window start (default: 30 days ago). Alias: --from.
+  -u, --until YYYY-MM-DD   Window end, inclusive (default: today). Alias: --to.
+      --compare            Also compute the immediately-preceding equal-length
+                           window and show per-author deltas.
+
+FILTERS
+      --min-loc N          Only PRs with (additions+deletions) >= N.
+      --max-loc N          Only PRs with (additions+deletions) <= N.
+      --include-bots       Keep bot authors/reviewers (excluded by default).
+      --bots "a,b,c"       Override the excluded-bot list.
+
+REVIEWS-ONLY
+      --denominator prs|events
+                           "prs" (default): comments per distinct PR reviewed.
+                           "events": comments per raw review submission.
+
+OUTPUT
+      --json               Emit JSON instead of a table.
+  -h, --help               This help.
+
+DEFINITIONS (read me)
+  * lead-time  = mergedAt - createdAt (PR open -> merge). NOT first-commit->merge.
+  * A "review" from the API is one PullRequestReview submission (approve /
+    request-changes / a batch of comments). Approve-only reviews carry 0 comments.
+  * "comments" = inline review comments only (not the review summary body, not
+    general PR-conversation comments). Each review's comments are authored by
+    that review's author, so per-reviewer counts are that person's own comments.
+  * LoC = additions + deletions (churn), the PR total from the API (includes
+    generated files / lockfiles — GitHub does not expose a scrubbed count).
+  * These numbers come from raw GitHub data and will NOT match third-party
+    review dashboards, which use different repo scope, windows, and definitions.
+
+EXAMPLES
+  eng-metrics lead-time --since 2026-06-01
+  eng-metrics lead-time --org lucis-team --min-loc 300 --compare
+  eng-metrics reviews  --repo lucis-team/lucis-platform --since 2026-05-01 --min-loc 300
+  eng-metrics reviews  --org lucis-team --denominator events --json
+EOF
+}
+
+# ---- arg parsing ----------------------------------------------------------
+[ $# -ge 1 ] || { usage; exit 1; }
+CMD="$1"; shift
+case "$CMD" in
+  lead-time|reviews) ;;
+  -h|--help) usage; exit 0 ;;
+  *) die "unknown command '$CMD' (expected lead-time or reviews). Try --help." ;;
+esac
+
+REPOS=(); ORG=""; LIMIT_REPOS=100
+SINCE=""; UNTIL=""; COMPARE=0
+MINLOC=0; MAXLOC=-1
+INCLUDE_BOTS=0; BOTS="$DEFAULT_BOTS"
+DENOM="prs"; JSON=0
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -r|--repo) REPOS+=("$2"); shift 2 ;;
+    -o|--org) ORG="$2"; shift 2 ;;
+    --limit-repos) LIMIT_REPOS="$2"; shift 2 ;;
+    -s|--since|--from) SINCE="$2"; shift 2 ;;
+    -u|--until|--to) UNTIL="$2"; shift 2 ;;
+    --compare) COMPARE=1; shift ;;
+    --min-loc) MINLOC="$2"; shift 2 ;;
+    --max-loc) MAXLOC="$2"; shift 2 ;;
+    --include-bots) INCLUDE_BOTS=1; shift ;;
+    --bots) BOTS="$2"; shift 2 ;;
+    --denominator) DENOM="$2"; shift 2 ;;
+    --json) JSON=1; shift ;;
+    -h|--help) usage; exit 0 ;;
+    *) die "unknown flag '$1'. Try --help." ;;
+  esac
+done
+
+command -v gh >/dev/null || die "gh CLI not found."
+command -v jq >/dev/null || die "jq not found."
+[ "$DENOM" = "prs" ] || [ "$DENOM" = "events" ] || die "--denominator must be 'prs' or 'events'."
+
+# ---- dates (BSD/macOS date; falls back to GNU) ----------------------------
+epoch_of() { date -j -f "%Y-%m-%d" "$1" +%s 2>/dev/null || date -d "$1" +%s; }
+date_of()  { date -r "$1" +%Y-%m-%d 2>/dev/null || date -d "@$1" +%Y-%m-%d; }
+
+[ -n "$UNTIL" ] || UNTIL="$(date +%Y-%m-%d)"
+[ -n "$SINCE" ] || SINCE="$(date_of "$(( $(epoch_of "$UNTIL") - 30*86400 ))")"
+
+SI=$(epoch_of "$SINCE"); UI=$(epoch_of "$UNTIL")
+[ "$UI" -ge "$SI" ] || die "--until must be on or after --since."
+LEN=$(( UI - SI ))
+BASE_SINCE="$(date_of "$(( SI - LEN - 86400 ))")"   # start of the preceding equal window
+
+# The fetch floor: reach back far enough to cover the comparison window too.
+FLOOR="$SINCE"; [ "$COMPARE" = 1 ] && FLOOR="$BASE_SINCE"
+FLOOR_TS="${FLOOR}T00:00:00Z"
+
+# ISO bounds for the primary window (until is inclusive -> end of that day).
+SINCE_TS="${SINCE}T00:00:00Z"
+UNTIL_TS="${UNTIL}T23:59:59Z"
+BASE_SINCE_TS="${BASE_SINCE}T00:00:00Z"
+BASE_UNTIL_TS="${SINCE}T00:00:00Z"                  # baseline ends where primary begins
+
+# ---- resolve repo scope ---------------------------------------------------
+if [ -n "$ORG" ]; then
+  while IFS= read -r r; do REPOS+=("$r"); done < <(
+    gh repo list "$ORG" --no-archived --source --limit "$LIMIT_REPOS" --json nameWithOwner -q '.[].nameWithOwner'
+  )
+  [ ${#REPOS[@]} -gt 0 ] || die "no repos found in org '$ORG'."
+elif [ ${#REPOS[@]} -eq 0 ]; then
+  R="$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null)" || die "not in a repo; pass --repo or --org."
+  REPOS+=("$R")
+fi
+
+BOTS_JSON=$(printf '%s' "$BOTS" | jq -R 'split(",")|map(gsub("^\\s+|\\s+$";""))')
+[ "$INCLUDE_BOTS" = 1 ] && BOTS_JSON='[]'
+
+# ---- fetch: PRs updated since FLOOR, with reviews & LoC -------------------
+TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
+DATA="$TMP/prs.jsonl"; : > "$DATA"
+
+read -r -d '' GQL <<'EOF' || true
+query($owner:String!,$repo:String!,$endCursor:String){
+  repository(owner:$owner,name:$repo){
+    pullRequests(first:40, after:$endCursor, orderBy:{field:UPDATED_AT, direction:DESC}){
+      pageInfo{hasNextPage endCursor}
+      nodes{
+        number updatedAt createdAt mergedAt additions deletions
+        author{login}
+        reviews(first:60){ nodes{ author{login} submittedAt comments{totalCount} } }
+      }
+    }
+  }
+}
+EOF
+
+fetch_repo() {
+  local nwo="$1" owner repo cursor="" resp oldest hasnext
+  owner="${nwo%%/*}"; repo="${nwo##*/}"
+  while : ; do
+    if [ -z "$cursor" ]; then
+      resp=$(gh api graphql -F owner="$owner" -F repo="$repo" -f query="$GQL") || return 0
+    else
+      resp=$(gh api graphql -F owner="$owner" -F repo="$repo" -F endCursor="$cursor" -f query="$GQL") || return 0
+    fi
+    echo "$resp" | jq -c --arg repo "$nwo" '.data.repository.pullRequests.nodes[] | . + {repo:$repo}' >> "$DATA"
+    oldest=$(echo "$resp" | jq -r '.data.repository.pullRequests.nodes[-1].updatedAt // empty')
+    hasnext=$(echo "$resp" | jq -r '.data.repository.pullRequests.pageInfo.hasNextPage')
+    cursor=$(echo "$resp" | jq -r '.data.repository.pullRequests.pageInfo.endCursor')
+    [ "$hasnext" = "true" ] || break
+    [ -z "$oldest" ] && break
+    [[ "$oldest" < "$FLOOR_TS" ]] && break     # PRs are UPDATED_AT-desc: past the floor, stop
+  done
+}
+
+for r in "${REPOS[@]}"; do
+  printf 'fetching %s ...\n' "$r" >&2
+  fetch_repo "$r"
+done
+NODES=$(wc -l < "$DATA" | tr -d ' ')
+printf 'fetched %s PR nodes across %s repo(s)\n' "$NODES" "${#REPOS[@]}" >&2
+
+# ---- jq metric library ----------------------------------------------------
+read -r -d '' JQLIB <<'EOF' || true
+def loc: (.additions + .deletions);
+def isbot($l): ($bots｜index($l)) != null or ($l｜test("\\[bot\\]$"));
+def pct($p): sort as $s | ($s｜length) as $n
+             | if $n==0 then null else $s[((($n-1)*$p)｜round)] end;
+def r1: if .==null then null else (.*10｜round/10) end;
+def inloc: (loc >= $minloc) and (($maxloc < 0) or (loc <= $maxloc));
+
+def leadtime($since;$until):
+  [ .[] | select(.author!=null and .mergedAt!=null)
+        | select(.mergedAt >= $since and .mergedAt < $until)
+        | select(inloc)
+        | {author:.author.login, h:(((.mergedAt｜fromdate)-(.createdAt｜fromdate))/3600)}
+        | select(isbot(.author)｜not) ]
+  | group_by(.author)[]
+  | ([.[].h]) as $h
+  | {author:.[0].author, prs:length,
+     median_h:($h｜pct(0.5)｜r1), mean_h:($h｜add/length｜r1), p90_h:($h｜pct(0.9)｜r1)};
+
+def reviews($since;$until;$denom):
+  [ .[] | select(inloc) | .number as $pr | .repo as $repo
+        | .reviews.nodes[]
+        | select(.author!=null and .submittedAt!=null and .submittedAt>=$since and .submittedAt<$until)
+        | {key:($repo+"#"+($pr｜tostring)), who:.author.login, c:.comments.totalCount}
+        | select(isbot(.who)｜not) ]
+  | group_by(.who)[]
+  | ([.[].key]｜unique｜length) as $prs
+  | (length) as $events
+  | ([.[].c]｜add) as $comments
+  | {reviewer:.[0].who, distinct_prs:$prs, review_events:$events, comments:$comments,
+     per_pr:($comments/$prs｜r1), per_event:($comments/$events｜r1),
+     avg_denominator: (if $denom=="prs" then ($comments/$prs) else ($comments/$events) end｜r1)};
+EOF
+# jq uses '|' as pipe; the heredoc above uses a fullwidth bar to survive shell
+# quoting, swapped back to real pipes here.
+JQLIB="${JQLIB//｜/|}"
+
+run_jq() { jq -rs --argjson bots "$BOTS_JSON" --argjson minloc "$MINLOC" --argjson maxloc "$MAXLOC" "$@" "$DATA"; }
+
+# ---- render ---------------------------------------------------------------
+hdr() { printf '\n== %s ==\n' "$*"; }
+
+if [ "$CMD" = "lead-time" ]; then
+  METRIC="lead time (PR open -> merge), hours"
+  if [ "$COMPARE" = 0 ]; then
+    RES=$(run_jq "$JQLIB"' [leadtime($s;$u)] | sort_by(-.prs)' --arg s "$SINCE_TS" --arg u "$UNTIL_TS")
+    if [ "$JSON" = 1 ]; then echo "$RES" | jq --arg w "$SINCE..$UNTIL" '{window:$w,metric:"lead-time",by_author:.}'; exit 0; fi
+    hdr "Lead time — $SINCE .. $UNTIL  |  min-loc=$MINLOC  scope=${ORG:-repo(s)}"
+    { printf 'author\tPRs\tmedian_h\tmean_h\tp90_h\n'
+      echo "$RES" | jq -r '.[]|[.author,.prs,.median_h,.mean_h,.p90_h]|@tsv'; } | column -t -s $'\t'
+  else
+    A=$(run_jq "$JQLIB"' [leadtime($s;$u)]' --arg s "$BASE_SINCE_TS" --arg u "$BASE_UNTIL_TS")
+    B=$(run_jq "$JQLIB"' [leadtime($s;$u)]' --arg s "$SINCE_TS" --arg u "$UNTIL_TS")
+    RES=$(jq -n --argjson a "$A" --argjson b "$B" '
+      ($a|map({key:.author,value:.})|from_entries) as $A
+      | ($b|map({key:.author,value:.})|from_entries) as $B
+      | [ (($A|keys)+($B|keys))|unique[] as $k
+          | {author:$k, base_prs:($A[$k].prs//0), base_median:$A[$k].median_h,
+             recent_prs:($B[$k].prs//0), recent_median:$B[$k].median_h,
+             delta_median: (if $A[$k] and $B[$k] then (($B[$k].median_h-$A[$k].median_h)*10|round/10) else null end)} ]
+      | sort_by(-.recent_prs)')
+    if [ "$JSON" = 1 ]; then echo "$RES" | jq --arg b "$BASE_SINCE..$SINCE" --arg r "$SINCE..$UNTIL" '{baseline:$b,recent:$r,by_author:.}'; exit 0; fi
+    hdr "Lead time compare — baseline $BASE_SINCE..$SINCE  vs  recent $SINCE..$UNTIL  |  min-loc=$MINLOC"
+    { printf 'author\tbase_PRs\tbase_median_h\trecent_PRs\trecent_median_h\tΔmedian_h\n'
+      echo "$RES" | jq -r '.[]|[.author,.base_prs,(.base_median//"-"),.recent_prs,(.recent_median//"-"),(.delta_median//"-")]|@tsv'; } | column -t -s $'\t'
+  fi
+else
+  if [ "$COMPARE" = 0 ]; then
+    RES=$(run_jq "$JQLIB"' [reviews($s;$u;$d)] | sort_by(-.distinct_prs)' --arg s "$SINCE_TS" --arg u "$UNTIL_TS" --arg d "$DENOM")
+    if [ "$JSON" = 1 ]; then echo "$RES" | jq --arg w "$SINCE..$UNTIL" --arg d "$DENOM" '{window:$w,metric:"reviews",denominator:$d,by_reviewer:.}'; exit 0; fi
+    hdr "Reviews — $SINCE .. $UNTIL  |  min-loc=$MINLOC  denom=$DENOM  scope=${ORG:-repo(s)}"
+    { printf 'reviewer\tdistinct_PRs\treview_events\tcomments\tcomments_per_%s\n' "$DENOM"
+      echo "$RES" | jq -r '.[]|[.reviewer,.distinct_prs,.review_events,.comments,.avg_denominator]|@tsv'; } | column -t -s $'\t'
+  else
+    A=$(run_jq "$JQLIB"' [reviews($s;$u;$d)]' --arg s "$BASE_SINCE_TS" --arg u "$BASE_UNTIL_TS" --arg d "$DENOM")
+    B=$(run_jq "$JQLIB"' [reviews($s;$u;$d)]' --arg s "$SINCE_TS" --arg u "$UNTIL_TS" --arg d "$DENOM")
+    RES=$(jq -n --argjson a "$A" --argjson b "$B" '
+      ($a|map({key:.reviewer,value:.})|from_entries) as $A
+      | ($b|map({key:.reviewer,value:.})|from_entries) as $B
+      | [ (($A|keys)+($B|keys))|unique[] as $k
+          | {reviewer:$k, base_prs:($A[$k].distinct_prs//0), base_avg:$A[$k].avg_denominator,
+             recent_prs:($B[$k].distinct_prs//0), recent_avg:$B[$k].avg_denominator,
+             delta_avg: (if $A[$k] and $B[$k] then (($B[$k].avg_denominator-$A[$k].avg_denominator)*10|round/10) else null end)} ]
+      | sort_by(-.recent_prs)')
+    if [ "$JSON" = 1 ]; then echo "$RES" | jq --arg b "$BASE_SINCE..$SINCE" --arg r "$SINCE..$UNTIL" --arg d "$DENOM" '{baseline:$b,recent:$r,denominator:$d,by_reviewer:.}'; exit 0; fi
+    hdr "Reviews compare — baseline $BASE_SINCE..$SINCE  vs  recent $SINCE..$UNTIL  |  denom=$DENOM  min-loc=$MINLOC"
+    { printf 'reviewer\tbase_PRs\tbase_c/%s\trecent_PRs\trecent_c/%s\tΔ\n' "$DENOM" "$DENOM"
+      echo "$RES" | jq -r '.[]|[.reviewer,.base_prs,(.base_avg//"-"),.recent_prs,(.recent_avg//"-"),(.delta_avg//"-")]|@tsv'; } | column -t -s $'\t'
+  fi
+fi
