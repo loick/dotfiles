@@ -1,7 +1,7 @@
 #!/bin/zsh
 
-export PATH="$PATH:./node_modules/.bin"
-export EDITOR="code --wait"
+export PATH="$HOME/dotfiles/bin:$PATH:./node_modules/.bin"
+export EDITOR="cursor --wait"
 
 # Make Option+Arrow word movement behave like a text editor:
 # stop at the end of the current word, not the start of the next one.
