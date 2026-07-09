@@ -1,5 +1,5 @@
 # Remote skills to install via skills CLI
-# Format: <github-repo-url> <skill-name>
+# Format: <github-repo-url> <skill-name>   (use * to install every skill in the repo)
 # Lines starting with # are ignored
 
 https://github.com/obra/superpowers brainstorming
@@ -16,7 +16,4 @@ https://github.com/obra/superpowers using-superpowers
 https://github.com/obra/superpowers verification-before-completion
 https://github.com/obra/superpowers writing-plans
 https://github.com/obra/superpowers writing-skills
-https://github.com/mattpocock/skills write-a-prd
-https://github.com/mattpocock/skills prd-to-issues
-https://github.com/mattpocock/skills improve-codebase-architecture
-https://github.com/mattpocock/skills handoff
+https://github.com/mattpocock/skills *
