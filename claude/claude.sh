@@ -129,19 +129,12 @@ if command -v skills > /dev/null 2>&1 || npm install -g skills > /dev/null 2>&1;
   grep -v '^\s*#' "$SKILLS_LIST" | grep -v '^\s*$' | awk '{repos[$1] = repos[$1] " --skill " $2} END {for (r in repos) print r repos[r]}' | while read -r cmd; do
     repo=$(echo "$cmd" | awk '{print $1}')
     skill_flags=$(echo "$cmd" | cut -d' ' -f2-)
+    # -g --copy installs real files at the user level. Without them the CLI writes
+    # repo-local symlinks that Claude also loads, registering each skill twice.
     # shellcheck disable=SC2086
-    skills add "$repo" $skill_flags -y < /dev/null
+    skills add "$repo" $skill_flags -g --copy -a claude-code codex cursor -y < /dev/null
   done
   set +f
-  # The skills CLI creates relative symlinks that break outside the repo.
-  # Copy the actual files to ensure they land in ~/.claude/skills/.
-  REMOTE_SKILLS_SRC="$(pwd)/.agents/skills"
-  if [ -d "$REMOTE_SKILLS_SRC" ]; then
-    for skill in "$REMOTE_SKILLS_SRC"/*; do
-      name="$(basename "$skill")"
-      [ -d "$skill" ] && cp -rf "$skill" "$SKILLS_DST/$name"
-    done
-  fi
   echo "✔ Remote skills installed"
 else
   echo "⚠ Could not install skills CLI — skipping remote skills"
