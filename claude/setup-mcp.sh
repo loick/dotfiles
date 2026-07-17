@@ -81,47 +81,45 @@ else
   }"
 fi
 
-# Pinned to 1.1.11: upstream repo (GongRzhe/Gmail-MCP-Server) is archived, so we
-# freeze to the last published version to avoid any surprise supply-chain updates.
-GMAIL_OAUTH_KEYS="$(pwd)/gmail-oauth.keys.json"
-GMAIL_CREDENTIALS="$(pwd)/gmail-oauth.credentials.json"
-if [ ! -f "$GMAIL_OAUTH_KEYS" ]; then
-  echo "  ⚠ $GMAIL_OAUTH_KEYS not found — skipping personal Gmail MCP (see .env.example)"
+# Google Workspace (personal) MCP — Gmail + Calendar behind one server, reusing
+# the same OAuth Desktop client JSON at ./gmail-oauth.keys.json.
+# Prerequisites (one-time, in the same GCP project as the OAuth client):
+#   - Enable the Google Calendar API (Gmail API is already enabled).
+#   - Register redirect URI http://localhost:8000/oauth2callback on the client.
+# Auth runs inline on first tool use (browser opens); token is stored by the
+# server outside the repo, so no credentials file is tracked here.
+GOOGLE_OAUTH_KEYS="$(pwd)/gmail-oauth.keys.json"
+if [ ! -f "$GOOGLE_OAUTH_KEYS" ]; then
+  echo "  ⚠ $GOOGLE_OAUTH_KEYS not found — skipping Google Workspace MCP (see .env.example)"
+elif [ -z "$USER_GOOGLE_EMAIL" ]; then
+  echo "  ⚠ USER_GOOGLE_EMAIL not set — skipping Google Workspace MCP (see .env.example)"
 else
-  add_mcp "gmail-personal" "{
-    \"command\": \"npx\",
-    \"args\": [\"-y\", \"@gongrzhe/server-gmail-autoauth-mcp@1.1.11\"],
+  add_mcp "google-workspace-personal" "{
+    \"command\": \"uvx\",
+    \"args\": [\"workspace-mcp\", \"--single-user\", \"--tools\", \"gmail\", \"calendar\"],
     \"env\": {
-      \"GMAIL_OAUTH_PATH\": \"$GMAIL_OAUTH_KEYS\",
-      \"GMAIL_CREDENTIALS_PATH\": \"$GMAIL_CREDENTIALS\"
+      \"GOOGLE_CLIENT_SECRET_PATH\": \"$GOOGLE_OAUTH_KEYS\",
+      \"USER_GOOGLE_EMAIL\": \"$USER_GOOGLE_EMAIL\",
+      \"OAUTHLIB_INSECURE_TRANSPORT\": \"1\"
     }
   }"
-
-  if [ -f "$GMAIL_CREDENTIALS" ]; then
-    echo "  ↳ Gmail OAuth already authorized ($GMAIL_CREDENTIALS)"
-  else
-    echo "  ↳ Running one-time Gmail OAuth authorization (browser will open)..."
-    GMAIL_OAUTH_PATH="$GMAIL_OAUTH_KEYS" GMAIL_CREDENTIALS_PATH="$GMAIL_CREDENTIALS" \
-      npx -y @gongrzhe/server-gmail-autoauth-mcp@1.1.11 auth
-  fi
 fi
 
-add_permission "mcp__gmail-personal__send_email"
-add_permission "mcp__gmail-personal__draft_email"
-add_permission "mcp__gmail-personal__read_email"
-add_permission "mcp__gmail-personal__search_emails"
-add_permission "mcp__gmail-personal__modify_email"
-add_permission "mcp__gmail-personal__delete_email"
-add_permission "mcp__gmail-personal__list_email_labels"
-add_permission "mcp__gmail-personal__batch_modify_emails"
-add_permission "mcp__gmail-personal__batch_delete_emails"
-add_permission "mcp__gmail-personal__create_label"
-add_permission "mcp__gmail-personal__update_label"
-add_permission "mcp__gmail-personal__delete_label"
-add_permission "mcp__gmail-personal__get_or_create_label"
-add_permission "mcp__gmail-personal__create_filter"
-add_permission "mcp__gmail-personal__list_filters"
-add_permission "mcp__gmail-personal__get_filter"
-add_permission "mcp__gmail-personal__delete_filter"
-add_permission "mcp__gmail-personal__create_filter_from_template"
-add_permission "mcp__gmail-personal__download_attachment"
+# Gmail
+add_permission "mcp__google-workspace-personal__search_gmail_messages"
+add_permission "mcp__google-workspace-personal__get_gmail_message_content"
+add_permission "mcp__google-workspace-personal__get_gmail_messages_content_batch"
+add_permission "mcp__google-workspace-personal__get_gmail_thread_content"
+add_permission "mcp__google-workspace-personal__send_gmail_message"
+add_permission "mcp__google-workspace-personal__draft_gmail_message"
+add_permission "mcp__google-workspace-personal__list_gmail_labels"
+add_permission "mcp__google-workspace-personal__manage_gmail_label"
+add_permission "mcp__google-workspace-personal__modify_gmail_message_labels"
+add_permission "mcp__google-workspace-personal__batch_modify_gmail_message_labels"
+add_permission "mcp__google-workspace-personal__list_gmail_filters"
+add_permission "mcp__google-workspace-personal__manage_gmail_filter"
+# Calendar
+add_permission "mcp__google-workspace-personal__list_calendars"
+add_permission "mcp__google-workspace-personal__get_events"
+add_permission "mcp__google-workspace-personal__manage_event"
+add_permission "mcp__google-workspace-personal__query_freebusy"
