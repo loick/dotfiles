@@ -10,13 +10,11 @@ This is how we recommend using AI — for engineers and non-engineers alike. It'
 
 ## Where your effort goes
 
-**1. Spend more of your effort on intent and verification than on implementation.** Writing the thing is the cheap, increasingly-commoditized part. The expensive, human work is on either side of it: knowing what to ask for and iterating on it, then proving the result is right — reviewing, fixing, iterating again. That's where your time and attention should concentrate. Implementation still needs you; it just shouldn't be where most of your effort goes.
+**1. Spend more of your effort on intent and verification than on implementation.**
+Writing the thing is the cheap, increasingly-commoditized part. The expensive, human work is on either side of it: knowing what to ask for and iterating on it, then proving the result is right — reviewing, fixing, iterating again. That's where your time and attention should concentrate. Implementation still needs you; it just shouldn't be where most of your effort goes.
 
-
-
-**2. Verify against criteria you set in advance.** You cannot verify what you never specified. "Looks right" is not verification, it's a vibe. Decide what "done and correct" means *before* the work, then check against it. Push everything objective into automated checks (they catch what human eyes can't), let the agent judge the rest against your criteria, and keep yourself as the last gate. One thing this can't escape: passing your criteria proves you built the thing *right*, not that you asked for the right thing. A check only ever confirms conformance to the spec — never that the spec was correct. That question is answered *before* you build, by a second mind challenging the approach, not by the verification loop after.
-
-
+**2. Verify against criteria you set in advance.**
+You cannot verify what you never specified. "Looks right" is not verification, it's a vibe. Decide what "done and correct" means *before* the work, then check against it. Push everything objective into automated checks (they catch what human eyes can't), let the agent judge the rest against your criteria, and stay the last gate on anything consequential. Where you let automation approve something on its own, that isn't a bypass of your judgment — it's the gate you configured in advance, acting for you. One thing this can't escape: passing your criteria proves you built the thing *right*, not that you asked for the right thing. A check only ever confirms conformance to the spec — never that the spec was correct. That question is answered *before* you build, by a second mind challenging the approach, not by the verification loop after.
 
 **3. Be the first reviewer of your own output — and let review be layered.**
 Never make someone else your first line of defense. The order is always you → AI → others: your work passes your own review, then an AI review, before another person spends a minute on it — and that's a matter of respect, not just efficiency. Handing someone work you haven't read and validated yourself — especially work you didn't even write — asks them to do the reading you skipped. Give AI clear criteria for what it may approve on its own; everything else, and the final judgment, stays human. Human attention is the scarcest thing you have; don't spend someone else's on what a check, an agent, or your own eyes could have caught.

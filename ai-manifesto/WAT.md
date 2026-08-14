@@ -2,15 +2,15 @@
 
 WAT is the architecture that makes the [Manifesto](./MANIFESTO.md) buildable. It separates concerns so that **probabilistic AI handles reasoning while deterministic code handles execution** — which is what makes an AI system reliable instead of impressively-wrong.
 
-> **Source & attribution:** this method (Workflows / Agents / Tools) is taught in the "AI Automation Society" community — [WAT CLAUDE.md](https://www.skool.com/ai-automation-society/classroom/076a1c6e?md=122d76fe19984887af89e30ba0c7d2f8)
+> **Source & attribution:** the WAT method (Workflows / Agents / Tools) comes from Nate Herk and the [AI Automation Society](https://www.skool.com/ai-automation-society/about) community. It's a practitioner's framework, not a formal standard.
 
 ---
 
 ## Why separate the layers
 
-When AI handles every step directly, accuracy compounds *downward*. If each step is 90% accurate, five steps in a row leave you at **0.9⁵ ≈ 59%** success. Offload each deterministic step to code that's 100% repeatable, and you keep your reasoning budget for the decisions where judgment actually earns its keep.
+When AI handles every step directly, errors compound *downward*. To illustrate: if each step were 90% accurate and errors were independent, five steps would compound to **0.9⁵ ≈ 59%** success. The real numbers vary — errors aren't truly independent, and 90% is a stand-in — but the direction holds: chain enough probabilistic steps and reliability decays fast. Offload each deterministic step to code that's 100% repeatable, and you keep your reasoning budget for the decisions where judgment actually earns its keep.
 
-That single fact is the whole justification for WAT: **get the model out of the parts that don't need it.**
+That's the intuition behind WAT: **get the model out of the parts that don't need it.**
 
 ## The three layers
 

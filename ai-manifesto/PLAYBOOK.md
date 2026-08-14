@@ -10,7 +10,7 @@ Engineer-facing unless noted.
 
 - Keep **one active task** holding your focus. Everything else runs in the background.
 - Aim for **≥3 background tasks in flight** — investigations, small fixes, prep for future work. This is a rule of thumb (popularized as "3–5 parallel worktrees"), not a quota.
-- The ceiling is **your review capacity**, not the tooling — typically ~4–8 before verification becomes the bottleneck. When you can't verify the outputs, stop launching more.
+- The ceiling is **your review capacity**, not the tooling. Community rules of thumb put it around ~4–8 concurrent, but treat that as a rough calibration, not a studied limit — when you can't verify the outputs, stop launching more.
 - Good background candidates: cleanup, spikes, research, mechanical refactors, small independent bug fixes. Bad candidates: anything needing heavy specification or deep verification — keep those in the foreground.
 
 ## Verification & review
@@ -42,7 +42,7 @@ Standardize on **one strong AI reviewer**, company-wide, configured with explici
 - **Under the size cap** (~400 net lines, excl. generated) — this gates *reviewability*.
 - The AI reviewer **rates it low-risk**.
 - It touches **no hard-floor path** (below).
-- **No structural tripwire** — doesn't span multiple modules, change a public interface, or touch more than a few files. A human regardless of "low-risk."
+- **No structural tripwire** — doesn't span multiple modules, change a public interface, or touch more than a few files. Requires a human regardless of the "low-risk" rating.
 - Deterministic checks are green.
 
 **Size gates reviewability, not safety — small does not mean safe. A one-line change can require a human.**
@@ -68,12 +68,14 @@ Enforce it mechanically, not by memory — the dangerous PR is the one whose aut
 - **Don't commit to or merge a PR you don't own** — human or AI. Pointing your agent at someone else's branch is the same override, and worse: it collides with the context their own in-flight session holds. Comment freely; push only if invited.
 - Exceptions (delegation, not override): the author asks you; the author is unreachable, the PR is approved, and it's blocking others (merge and leave a note — baton passed, not grabbed); an incident (whoever's driving the fix merges).
 
-## Binômes — never solo
+## Pairing — never solo
+
+*Pairing* — co-ownership of a project by **at least** two people (never one; more than two is fine).
 
 - **Never solo on a project. Always ≥2 people context-aware.**
 - The second person engages **early** — challenging the approach at kickoff, reviewing the architecture/design — *not* parachuting in at review time. Cold discovery in the PR defeats the purpose.
-- The binôme is the **default reviewer** and owns the review SLA for that feature; not exclusive — anyone can review as fallback.
-- **Precondition:** this needs protected time for context-sharing. If that isn't committed, don't half-adopt — fall back to plain review + strong PR context. A half-committed binôme is *worse* than none: you keep the SLA cost and lose the warm-context benefit.
+- Your pairing partner is the **default reviewer** and owns the review SLA for that feature; not exclusive — anyone can review as fallback.
+- **Precondition:** this needs protected time for context-sharing. If that isn't committed, don't half-adopt — fall back to plain review + strong PR context. A half-committed pairing is *worse* than none: you keep the SLA cost and lose the warm-context benefit.
 
 ## Review SLA
 
@@ -86,12 +88,12 @@ Enforce it mechanically, not by memory — the dangerous PR is the one whose aut
 - A **draft** means "actively building, not ready for review." Not a backlog item, a saved idea, or a parking lot.
 - If work won't progress this week, it doesn't belong as an open draft — move it to a tracked issue. The code isn't lost (it's on the branch); reopen when you resume.
 - Ask promptly for approval once ready; don't let approved PRs sit unmerged.
-- Nudge stale PRs by who holds the ball: inactive drafts (~5 business days) → nudge the author & close; ready-and-waiting → shorter clock, nudge the reviewer / binôme.
+- Nudge stale PRs by who holds the ball: inactive drafts (~5 business days) → nudge the author & close; ready-and-waiting → shorter clock, nudge the reviewer / pairing partner.
 
 ## Tickets
 
 - **Hard gate:** no PR merges without a **linked, categorized ticket**. Enforced mechanically (branch protection / CI), not by goodwill.
-- Tickets are **receipts, not orders** — created as the work lands, filed into the right project. `1 ticket = 1 task`.
+- Tickets are always a **receipt** of the work — created as it lands, filed into the right project (`1 ticket = 1 task`). They can also be an *order* (self-written for planning, or an incoming bug/request); what's never handed down is the task *breakdown*.
 - **Automate the receipt:** generate the ticket from PR metadata so the gate costs the engineer ~nothing. Enforcement guarantees the record exists; automation guarantees it's honest (a tedious manual gate just produces junk "misc" tickets that poison your data).
 - **Categorize** every ticket (e.g. run vs. build) so the measurement is usable.
 - How you *plan* below the ticket is yours — Linear, a Claude session, a PR stack. That's personal organization, not team reporting.
@@ -106,8 +108,8 @@ Enforce it mechanically, not by memory — the dangerous PR is the one whose aut
 
 ## Loop graduation (WAT)
 
-- When you catch yourself doing the same thing twice, graduate it: use an agent to build the deterministic **tool** or **scheduled job**, then remove the agent from the hot path.
-- Push every part you *can* to deterministic tools; keep the agent only for the judgment that's left. Mixed agent+tool is fine — the goal is *less* model in the loop, not zero.
+- Repeatable loop → have an agent build the deterministic **tool** / **scheduled job**, then remove the agent from the hot path.
+- Push what you can to deterministic tools; keep the agent only for residual judgment. Mixed agent+tool is fine — aim for *less* model in the loop, not zero.
 - Graduated jobs must stay **observable** and be able to **escalate back to an agent/human** when their assumptions break. A silent broken cron is worse than no automation.
 - See [WAT.md](./WAT.md) for the architecture.
 
