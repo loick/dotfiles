@@ -27,6 +27,7 @@ Mechanics:
 - Every workflow / spec must declare its **acceptance criteria** up front: the definition of "done and correct." No criteria, no verification.
 - **Give context, proportional to the PR.** Fill the PR template honestly (problem, why-now, plan): a one-line copy fix needs a sentence, a non-trivial change needs the plan. Show it works: screenshot/GIF/video for visual changes, command or test output for behavior. Evidence lets the reviewer confirm in seconds instead of reverse-engineering intent.
 - A reviewer may **bounce a PR back** if there's no self-review or no context. That's legitimate and non-hostile, and the review clock pauses until it's fixed. This protects reviewer time.
+- **AI code is the dangerous kind to review:** it reads as plausible, so reviewers catch its debt *less* reliably than hand-written debt. Lean harder on self-review and evidence, not less.
 
 ## Small PRs
 
@@ -34,6 +35,7 @@ Mechanics:
 - Long-lived feature branches are discouraged; they make a small, reviewable PR impossible. For dependent or unfinished work, use **stacked PRs** or **feature flags**.
 - A **feature flag is debt, not a free switch**: whoever adds one owns removing it, as part of the same project. Don't leave flags lying around.
 - Merging not-yet-used code is fine **with guardrails**: it's inert or behind a flag, the PR explains the plan, it ships with tests that exercise it, and it belongs to an active project.
+- **Review capacity doesn't scale with AI's output volume.** When reviewers can't keep pace, shrink the changeset; don't lighten the review. The failure mode (code merging unread) is already common in the wild, not hypothetical.
 
 ## How much to delegate
 
@@ -53,7 +55,7 @@ Trusting agents more because the models got smarter is like skipping the seatbel
 
 ## AI-approved merges (when the human is skipped)
 
-Use an AI reviewer that is **independent of the agent that wrote the code**: the author's own model shares its blind spots. Standardize the config company-wide; **the rules carry the safety, the AI carries the judgment within them** (standardizing concentrates the single point of failure, so trust the bounds, not the verdict). For consequential PRs, escalate to a **multi-lens review** (several reviewers with different instructions/models, e.g. a qa-swarm-style pass) before a human sees it. Auto-merge with no human only when **all** hold:
+Use an AI reviewer that is **independent of the agent that wrote the code**: the author's own model shares its blind spots. Standardize the config company-wide; **the rules carry the safety, the AI carries the judgment within them** (standardizing concentrates the single point of failure, so trust the bounds, not the verdict). For consequential PRs, escalate to a **multi-lens review** (several reviewers with different instructions/models, e.g. a qa-swarm-style pass) before a human sees it. Diversity only counts if the reviewers genuinely differ: identical reviewers share one blind spot, and agents tend to converge on the same wrong call, so N copies of one reviewer is false diversity (cost without coverage). Auto-merge with no human only when **all** hold:
 
 - **Under the size cap** (~400 net lines, excl. generated): this gates *reviewability*.
 - The AI reviewer **rates it low-risk**.
@@ -127,6 +129,7 @@ Enforce it mechanically, not by memory. The dangerous PR is the one whose author
 - Repeatable loop → have an agent build the deterministic **tool** / **scheduled job**, then remove the agent from the hot path.
 - Push what you can to deterministic tools; keep the agent only for residual judgment. Mixed agent+tool is fine; aim for *less* model in the loop, not zero.
 - Graduated jobs must stay **observable** and be able to **escalate back to an agent/human** when their assumptions break. A silent broken cron is worse than no automation.
+- Watch **maintainability, not just correctness.** AI output drifts toward more code and less reuse, and complexity compounds until it eats the velocity gain. Track complexity/duplication over time as its own gate, alongside "does it still work."
 - See [WAT.md](./WAT.md) for the architecture.
 
 ## Agent evals & observability
@@ -162,5 +165,17 @@ Graduation rule (manifesto #6): no evaluator that catches regressions before a h
 
 - One shared set of **skills, context, and company knowledge** (via `CLAUDE.md`, a plugin/marketplace, or an internal knowledge base), so a capability one person builds is one the whole team has.
 - Everyone touching AI gets the basic literacy: **skills, MCP, agents, tools.** Not optional.
-- **Writing a skill:** give it goals, constraints, and context the agent can't discover on its own, *not* step-by-step procedures. Over-specifying turns a skill into a rigid workflow and strips the intelligence you're paying for.
+- **Writing a skill (match rigidity to the task):** for judgment tasks, give goals, constraints, and context the agent can't discover, *not* step-by-step procedures; over-specifying strips the intelligence you're paying for. For work that must be reproducible (releases, migrations, benchmarks), do the opposite: an executable procedure with hard gates, fixed contracts, and preflight checks, so every run is identical. Either way, tell agents to check for an existing implementation before writing new; their default is to write fresh, which inflates duplication.
 - **Fight skill rot:** put durable structure in the skill, but point to the live source for volatile content (docs, schemas, API specs) instead of embedding it; version skills, give each an owner, keep them synced in CI. A stale skill is worse than none.
+
+## Sources & further reading
+
+The data-backed claims above (the verification gap, quality drift, the delegation gap) draw on, among others. Figures are as reported by each source:
+
+- New Relic, [*2026 State of AI Coding*](https://newrelic.com/resources/report/2026-state-of-ai-coding): teams shipping AI code without line-by-line verification, and rising production incidents.
+- Addy Osmani, [*Agentic Code Review*](https://addyosmani.com/blog/agentic-code-review/): Faros AI data across ~22k developers on code churn and defect rates.
+- [*More Code, Less Reuse*](https://arxiv.org/abs/2601.21276) (MSR 2026) and [*Speed at the Cost of Quality*](https://arxiv.org/pdf/2511.04427): AI-driven duplication and complexity drift, and why reviewers rate AI code more favorably than its quality warrants.
+- Michaela Greiler, [*Code Review Surrender and Exploitation*](https://www.michaelagreiler.com/codereview-surrender-exploitation/): the two ways review breaks under AI volume.
+- Anthropic, [agentic coding trends](https://pathmode.io/blog/orchestration-era-needs-intent) (the ~60% use / ~20% full-delegation gap) and Frontier Red Team [multi-agent conformity findings](https://techcrunch.com/2026/08/13/anthropic-set-ai-agents-loose-on-the-same-task-they-started-a-turf-war/).
+- LMSYS, [*Agent-Assisted SGLang Development*](https://www.lmsys.org/blog/2026-07-02-agent-assisted-sglang-development): skills as executable procedures with hard gates for reproducible work.
+- PostHog, [*Product for Engineers*](https://newsletter.posthog.com/): the delegation matrix, agent evals, and context/skill design.
