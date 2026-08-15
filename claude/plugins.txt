@@ -1,3 +1,0 @@
-# Plugins to install via `claude plugin` CLI
-# Format: <marketplace-source> <plugin-name>@<marketplace-name>
-# Lines starting with # are ignored

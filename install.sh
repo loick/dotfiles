@@ -101,9 +101,3 @@ ln -Fs "$(pwd)/linearmouse/linearmouse.json" ~/.config/linearmouse/linearmouse.j
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 sh "$(pwd)/mac/install.sh"
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Claude
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-sh "$(pwd)/claude/claude.sh"
