@@ -4,7 +4,7 @@
 
 The agent only takes the middle. Both ends stay yours, and they're the ones people quietly drop. Handing a task to an agent doesn't shrink your job; it moves it up a level. You say what's needed, you direct the work, and you prove the result is right. Skip the first and you get a confident answer to the wrong question. Skip the last and you ship whatever the agent felt like.
 
-This is how we recommend using AI, for engineers and non-engineers alike. It's a mindset, not a rulebook. The concrete numbers, gates, and mechanics live in the **Playbook**; the architecture that makes it buildable lives in **WAT**.
+This is how I recommend using AI, for engineers and non-engineers alike. It's a mindset, not a rulebook. The concrete numbers, gates, and mechanics live in the **Playbook**; the architecture that makes it buildable lives in **WAT**.
 
 ---
 
