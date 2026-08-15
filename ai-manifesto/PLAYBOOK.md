@@ -6,6 +6,33 @@ Engineer-facing unless noted.
 
 ---
 
+## Contents
+
+- [Parallelism](#parallelism)
+
+**Review & PR flow**
+- [Verification & review](#verification--review)
+- [Small PRs](#small-prs)
+- [How much to delegate](#how-much-to-delegate)
+- [AI-approved merges](#ai-approved-merges-when-the-human-is-skipped)
+- [The hard floor](#the-hard-floor-always-a-human)
+- [PR ownership](#pr-ownership)
+- [Pairing (never solo)](#pairing-never-solo)
+- [Review SLA](#review-sla)
+- [Draft & standby hygiene](#draft--standby-hygiene)
+- [Tickets](#tickets)
+- [Project forecasting](#project-forecasting-management)
+
+**Running agents in production**
+- [Loop graduation](#loop-graduation-wat)
+- [Agent evals & observability](#agent-evals--observability)
+- [Model selection](#model-selection)
+- [Shared setup](#shared-setup)
+
+- [Sources & further reading](#sources--further-reading)
+
+---
+
 ## Parallelism
 
 - Keep **one active task** holding your focus. Everything else runs in the background.
@@ -31,7 +58,7 @@ Mechanics:
 
 ## Small PRs
 
-- Target **~400–600 net added lines**, excluding generated code (lockfiles, schema clients, translation catalogs, dead-code deletion). The bar: a reviewer holds it in ~10–20 min.
+- Target **~400 net added lines**, excluding generated code (lockfiles, schema clients, translation catalogs, dead-code deletion). The bar: a reviewer holds it in ~10–20 min. Up to **600 is acceptable with human review**; beyond that, split it. (Auto-merge uses a stricter cap, see below.)
 - Long-lived feature branches are discouraged; they make a small, reviewable PR impossible. For dependent or unfinished work, use **stacked PRs** or **feature flags**.
 - A **feature flag is debt, not a free switch**: whoever adds one owns removing it, as part of the same project. Don't leave flags lying around.
 - Merging not-yet-used code is fine **with guardrails**: it's inert or behind a flag, the PR explains the plan, it ships with tests that exercise it, and it belongs to an active project.
@@ -57,7 +84,7 @@ Trusting agents more because the models got smarter is like skipping the seatbel
 
 Use an AI reviewer that is **independent of the agent that wrote the code**: the author's own model shares its blind spots. Standardize the config company-wide; **the rules carry the safety, the AI carries the judgment within them** (standardizing concentrates the single point of failure, so trust the bounds, not the verdict). For consequential PRs, escalate to a **multi-lens review** (several reviewers with different instructions/models, e.g. a qa-swarm-style pass) before a human sees it. Diversity only counts if the reviewers genuinely differ: identical reviewers share one blind spot, and agents tend to converge on the same wrong call, so N copies of one reviewer is false diversity (cost without coverage). Auto-merge with no human only when **all** hold:
 
-- **Under the size cap** (~400 net lines, excl. generated): this gates *reviewability*.
+- **Under the size cap** (~400 net lines, excl. generated): this gates *reviewability*, and is deliberately stricter than the human-review target (600) above.
 - The AI reviewer **rates it low-risk**.
 - It touches **no hard-floor path** (below).
 - **No structural tripwire**: doesn't span multiple modules, change a public interface, or touch more than a few files. Requires a human regardless of the "low-risk" rating.
@@ -141,7 +168,7 @@ Reviewing PRs says nothing about whether a *graduated* agent (a loop, a cron, a 
 - **A dataset** seeded from real inputs + recent bugs; grow it from each new failure.
 - **A trace-review ritual**: periodically read real runs to discover evaluators you didn't know you needed.
 
-Graduation rule (manifesto #6): no evaluator that catches regressions before a human would means the agent doesn't leave the hot path.
+Graduation rule (the *Graduate your loops* principle): no evaluator that catches regressions before a human would means the agent doesn't leave the hot path.
 
 ## Model selection
 
