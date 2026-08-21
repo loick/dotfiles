@@ -27,6 +27,7 @@ cask "font-fira-code-nerd-font"
 # Self-updates via its own updater, so Homebrew's recorded version drifts behind
 # the app on disk and a plain upgrade aborts on the existing bundle; force overwrites it.
 cask "cleanshot", args: { force: true }
+cask "shottr"
 cask "linearmouse"
 cask "ghostty"
 cask "1password"
