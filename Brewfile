@@ -1,4 +1,5 @@
 tap "getagentseal/codeburn"
+tap "stablyai/orca"
 
 brew "bat"
 brew "codeburn"
@@ -23,7 +24,9 @@ cask "thebrowsercompany-dia"
 cask "transmission"
 cask "vlc"
 cask "font-fira-code-nerd-font"
-cask "cleanshot"
+# Self-updates via its own updater, so Homebrew's recorded version drifts behind
+# the app on disk and a plain upgrade aborts on the existing bundle; force overwrites it.
+cask "cleanshot", args: { force: true }
 cask "linearmouse"
 cask "ghostty"
 cask "1password"
@@ -44,3 +47,5 @@ cask "codexbar"
 cask "displaybuddy"
 cask "plex-media-server"
 cask "anki"
+# Agent Development Environment; core "orca" is an unrelated deprecated cask, hence the fully-qualified tap path
+cask "stablyai/orca/orca"
