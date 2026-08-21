@@ -56,6 +56,12 @@ if ! [ -x "$(command -v brew)" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
+# Homebrew 6 refuses formulae/casks from untrusted third-party taps during a
+# non-interactive bundle run; trust every tap the Brewfile declares first.
+grep '^tap "' "$(pwd)/Brewfile" | sed 's/^tap "//; s/".*//' | while read -r tap; do
+  brew tap "$tap" >/dev/null 2>&1 && brew trust --tap "$tap"
+done
+
 brew bundle install --file "$(pwd)/Brewfile"
 brew update
 brew upgrade
