@@ -45,6 +45,8 @@ cask "discord"
 cask "figma"
 cask "linear"
 cask "beekeeper-studio"
+# Container runtime; the cask was renamed from "docker" to "docker-desktop"
+cask "docker-desktop"
 cask "calibre"
 cask "codexbar"
 # Fix light & sound management with Mac + external monitor
