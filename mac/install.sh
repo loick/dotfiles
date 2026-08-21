@@ -7,6 +7,10 @@ echo "✔ Dotfiles shown in Finder"
 defaults write com.apple.dock static-only -bool true
 echo "✔ Dock now only show active applications"
 
+defaults write com.apple.dock autohide -bool true
+killall Dock
+echo "✔ Dock set to auto-hide (windows now use full height)"
+
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
 defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
