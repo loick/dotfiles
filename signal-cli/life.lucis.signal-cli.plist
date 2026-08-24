@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>life.lucis.signal-cli</string>
+
+  <!-- Hermes Agent reaches Signal through this daemon over loopback HTTP:
+       SSE to receive, JSON-RPC to send. The formula ships no brew service, so
+       without this the daemon dies on reboot and Signal goes silent.
+
+       Bound to 127.0.0.1 deliberately. The signal-cli HTTP API has NO
+       authentication, so anything able to reach it can send Signal as you.
+       Never change this to 0.0.0.0 — not even to let a Docker container in.
+
+       Port 8090, not the documented 8080, which qBittorrent already binds
+       in the homelab repo. -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/signal-cli</string>
+    <string>--account</string>
+    <string>__SIGNAL_ACCOUNT__</string>
+    <string>daemon</string>
+    <string>--http</string>
+    <string>127.0.0.1:8090</string>
+  </array>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ProcessType</key>
+  <string>Background</string>
+
+  <key>StandardOutPath</key>
+  <string>__HOME__/Library/Logs/signal-cli.log</string>
+  <key>StandardErrorPath</key>
+  <string>__HOME__/Library/Logs/signal-cli.log</string>
+</dict>
+</plist>

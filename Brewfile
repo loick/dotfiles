@@ -16,6 +16,7 @@ brew "eza"
 brew "rtk"
 brew "mole"
 brew "ollama"
+brew "signal-cli"
 
 # Applications
 cask "brave-browser"

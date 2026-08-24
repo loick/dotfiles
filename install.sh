@@ -102,6 +102,27 @@ mkdir -p ~/.config/linearmouse
 ln -Fs "$(pwd)/linearmouse/linearmouse.json" ~/.config/linearmouse/linearmouse.json
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Signal (for Hermes Agent)
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+# The signal-cli formula ships no brew service, so the daemon Hermes talks to
+# would die on every reboot. This installs it as a LaunchAgent instead.
+# The device must already be linked once, interactively:
+#   signal-cli link -n "HermesAgent"    # then scan the QR from Signal on iOS
+
+if [ -n "$SIGNAL_ACCOUNT" ]; then
+  mkdir -p ~/Library/LaunchAgents ~/Library/Logs
+  sed -e "s|__HOME__|$HOME|g" -e "s|__SIGNAL_ACCOUNT__|$SIGNAL_ACCOUNT|g" \
+    "$(pwd)/signal-cli/life.lucis.signal-cli.plist" \
+    > ~/Library/LaunchAgents/life.lucis.signal-cli.plist
+  launchctl bootout "gui/$(id -u)/life.lucis.signal-cli" 2>/dev/null || true
+  launchctl bootstrap "gui/$(id -u)" ~/Library/LaunchAgents/life.lucis.signal-cli.plist 2>/dev/null || true
+  echo "✔ signal-cli LaunchAgent installed (loopback 127.0.0.1:8090)"
+else
+  echo "⚠ SIGNAL_ACCOUNT not set — skipping signal-cli LaunchAgent"
+fi
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # MacOS Settings
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
