@@ -42,6 +42,8 @@ cask "claude-code"
 cask "claude"
 cask "appcleaner"
 cask "discord"
+# Client natif macOS ; "telegram-desktop" est la variante Qt, moins intégrée.
+cask "telegram"
 cask "figma"
 cask "linear"
 cask "beekeeper-studio"
