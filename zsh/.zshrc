@@ -86,3 +86,9 @@ export NVM_DIR="$HOME/.nvm"
 
 export _ZO_DOCTOR=0 # Claude Code shell integration triggers a false positive
 eval "$(zoxide init zsh --cmd cd)"
+export OLLAMA_KEEP_ALIVE=24h
+
+# Added by cua-driver-rs installer — see https://github.com/trycua/cua
+# L'installeur écrit un chemin absolu et récrit sa ligne à chaque exécution :
+# ces deux défauts sont corrigés ici, la ligne est à conserver telle quelle.
+export PATH="$HOME/.local/bin:$PATH"
