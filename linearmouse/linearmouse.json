@@ -1,5 +1,5 @@
 {
-  "$schema" : "https:\/\/schema.linearmouse.app\/0.10.4",
+  "$schema" : "https:\/\/schema.linearmouse.app\/0.11.4",
   "schemes" : [
     {
       "if" : {
@@ -14,6 +14,22 @@
       "scrolling" : {
         "reverse" : {
           "horizontal" : false,
+          "vertical" : true
+        }
+      }
+    },
+    {
+      "if" : {
+        "app" : "com.mitchellh.ghostty",
+        "device" : {
+          "category" : "mouse",
+          "productID" : "0xb034",
+          "productName" : "V-MX Master 3S",
+          "vendorID" : "0x46d"
+        }
+      },
+      "scrolling" : {
+        "reverse" : {
           "vertical" : true
         }
       }
