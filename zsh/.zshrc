@@ -48,6 +48,15 @@ bindkey -M shift-select -R '^@'-'^?' shift-select::replace-region
 bindkey -M emacs '^[yc' shift-select::copy-region
 bindkey -M shift-select '^[yc' shift-select::copy-region
 
+# Ghostty maps Cmd+V to ^V (0x16) so Claude Code can paste images from the
+# clipboard. At the prompt that byte would hit quoted-insert, so make it a
+# plain clipboard paste instead.
+function paste-from-clipboard() {
+  LBUFFER+="$(pbpaste)"
+}
+zle -N paste-from-clipboard
+bindkey -M emacs '^V' paste-from-clipboard
+
 # Bind Cmd+Shift+Left/Right (sent as custom escapes from Ghostty) to select to line boundaries
 bindkey -M emacs '^[yl' shift-select::beginning-of-line
 bindkey -M shift-select '^[yl' shift-select::beginning-of-line

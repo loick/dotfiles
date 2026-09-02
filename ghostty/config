@@ -43,14 +43,17 @@ keybind = shift+enter=text:\n
 keybind = cmd+shift+left=text:\x1byl
 keybind = cmd+shift+right=text:\x1byr
 
-# Paste an image (e.g. a Shottr capture) into a TUI. Cmd+V can't do this: a
-# terminal paste only writes text bytes into the pty, and an image clipboard has
-# no text representation, so nothing arrives. Claude Code reads the macOS
-# clipboard itself and binds that to Ctrl+V, so we just emit its byte (0x16).
-# Sending the raw control byte also avoids depending on the kitty keyboard
-# protocol to encode a Cmd combo. Costs us paste_from_selection here, which is
-# redundant given copy-on-select = clipboard above.
-keybind = cmd+shift+v=text:\x16
+# Make Cmd+V paste images (e.g. a Shottr capture) into a TUI. A terminal paste
+# only writes text bytes into the pty, and an image clipboard has no text
+# representation, so a plain paste sends nothing. Claude Code reads the macOS
+# clipboard itself, binds that to Ctrl+V, and falls back to pasting clipboard
+# text when there is no image -- so emitting its byte (0x16) covers both cases.
+# The remap has to happen here: Claude Code refuses to bind cmd+v, reserving it
+# as the macOS system paste. Zsh binds ^V to a pbpaste widget (see zsh/.zshrc)
+# so pasting at the prompt keeps working; Cmd+Shift+V stays a plain terminal
+# paste for TUIs that treat 0x16 as literal-insert (vim, less).
+keybind = cmd+v=text:\x16
+keybind = cmd+shift+v=paste_from_clipboard
 
 # --- Performance ---
 scrollback-limit = 100000
