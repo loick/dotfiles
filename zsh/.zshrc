@@ -92,3 +92,5 @@ export OLLAMA_KEEP_ALIVE=24h
 # L'installeur écrit un chemin absolu et récrit sa ligne à chaque exécution :
 # ces deux défauts sont corrigés ici, la ligne est à conserver telle quelle.
 export PATH="$HOME/.local/bin:$PATH"
+
+alias codex="/Applications/ChatGPT.app/Contents/Resources/codex"
