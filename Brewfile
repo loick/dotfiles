@@ -16,7 +16,6 @@ brew "eza"
 brew "rtk"
 brew "mole"
 brew "ollama"
-brew "codex"
 
 # Applications
 cask "google-chrome"
@@ -49,6 +48,8 @@ cask "beekeeper-studio"
 # Container runtime; the cask was renamed from "docker" to "docker-desktop"
 cask "docker-desktop"
 cask "calibre"
+# OpenAI's terminal coding agent (shadowed by the zsh alias to ChatGPT.app's own codex)
+cask "codex"
 cask "codexbar"
 # Fix light & sound management with Mac + external monitor
 cask "displaybuddy"
