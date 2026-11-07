@@ -16,9 +16,9 @@ brew "eza"
 brew "rtk"
 brew "mole"
 brew "ollama"
+brew "codex"
 
 # Applications
-cask "brave-browser"
 cask "google-chrome"
 cask "thebrowsercompany-dia"
 cask "transmission"
@@ -30,7 +30,6 @@ cask "cleanshot", args: { force: true }
 cask "shottr"
 cask "linearmouse"
 cask "ghostty"
-cask "1password"
 # Mesh VPN; the GUI app cask is "tailscale-app" ("tailscale" is a CLI-only formula)
 cask "tailscale-app"
 cask "notion"
