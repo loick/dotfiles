@@ -1,8 +1,6 @@
-tap "getagentseal/codeburn"
 tap "stablyai/orca"
 
 brew "bat"
-brew "codeburn"
 brew "scc"
 brew "git-delta"
 brew "gh"
