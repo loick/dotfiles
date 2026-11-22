@@ -95,6 +95,24 @@ else
 fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Raycast
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+# Raycast has no CLI to install Store extensions: the deeplink opens each
+# extension's Store page and the Install click stays manual. Already-installed
+# extensions are detected by their package name and skipped.
+grep -v '^#' "$(pwd)/raycast_extensions" | while read -r ext; do
+  [ -n "$ext" ] || continue
+  name="${ext#*/}"
+  if grep -qs "\"name\": *\"$name\"" ~/.config/raycast/extensions/*/package.json; then
+    echo "✔ Raycast extension $ext already installed"
+  else
+    open "raycast://extensions/$ext"
+    echo "→ Raycast: click Install on the $ext page"
+  fi
+done
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # LinearMouse
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
